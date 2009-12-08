@@ -18,7 +18,8 @@
 \usage{
 read_dna_seg_from_tab(file, header = TRUE, ...)
 read_dna_seg_from_file(file, tagsToParse=c("CDS"), fileType = "detect",
-                       meta_lines = 2, gene_type = "auto", header = TRUE, ...)
+                       meta_lines = 2, gene_type = "auto", header = TRUE,
+                       extra_fields = NULL, ...)
 read_dna_seg_from_embl(file, tagsToParse=c("CDS"), ...)
 read_dna_seg_from_genbank(file, tagsToParse=c("CDS"), ...)
 read_dna_seg_from_fasta(file, ...)
@@ -62,6 +63,11 @@ read_mauve_backbone(file, ref = 1, gene_type = "side_blocks",
     Default for mauve backbone is \code{side_blocks}.
     See \code{\link{gene_types}} page for more details, or use function
     \code{gene_types}. 
+  }
+  \item{extra_fields}{
+    \code{NULL} by default. If a character vector, parses extra fields
+    in the genbank or embl file that have corresponding keys and put
+    them in the resulting \code{dna_seg}.
   }
   \item{sort_by}{
     In BLAST-like tabs, gives the name of the column that will be used
@@ -134,7 +140,9 @@ read_mauve_backbone(file, ref = 1, gene_type = "side_blocks",
   only one ID tag; genbank files may only contain one and only one locus
   tag. In these two files, the following tags are parsed (in addition to
   the regular name, start, end and strand): protein_id, product, color
-  (or colour).
+  (or colour). In addition, extra tags can be parsed with the argument
+  \code{extra_fields}. If there are more than one field with such a tag,
+  only the first one is parsed.
 
   Fasta files are read as one gene, as long as there are nucleotides in
   the fasta file.
@@ -258,6 +266,12 @@ bq <- read_dna_seg_from_embl(bq_embl_file)
 ##
 bq_genbank_file <- system.file('extdata/BG_plasmid.gbk', package = 'genoPlotR')
 bq <- read_dna_seg_from_file(bq_genbank_file, fileType="detect")
+
+## Parsing extra fields in the genbank file
+bq <- read_dna_seg_from_file(bq_genbank_file,
+                             extra_fields=c("db_xref", "transl_table"))
+names(bq)
+
 
 ##
 ## From ptt files

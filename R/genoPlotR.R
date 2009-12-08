@@ -16,6 +16,11 @@ plot_gene_map <- function(dna_segs,
                           annotations=NULL,
                           annotation_height=1, # height of annot line
                           annotation_cex=0.8, # size of annotations
+                          seg_plots=NULL,    # user-defined plots
+                          seg_plot_height=3, # height of plots (in lines)
+                          seg_plot_height_unit="lines", # unit of preceding
+                          seg_plot_yaxis=3, # if non-null or non false, ticks
+                          seg_plot_yaxis_cex=scale_cex,
                           xlims=NULL,
                           offsets=NULL, # regulates manually alignment of segs
                           minimum_gap_size=0.05,
@@ -37,7 +42,8 @@ plot_gene_map <- function(dna_segs,
                             "blue_red", 0.5),
                           override_color_schemes=FALSE,
                           plot_new=TRUE, # FALSE to integrate on a bigger plot
-                          debug=0){
+                          debug = 0,
+                          ...){
   #----------------------------------------------------------------------------#
   # check arguments
   #----------------------------------------------------------------------------#
@@ -47,7 +53,7 @@ plot_gene_map <- function(dna_segs,
   if (!is.list(dna_segs) || !all(sapply(dna_segs, is.dna_seg)))
     stop("Argument dna_segs must be a list of dna_seg objects")
   n_dna_segs <- length(dna_segs)
-  n_rows <- 2*n_dna_segs-1
+  n_rows <- 3*n_dna_segs-1
   
   # comparisons
   n_comparisons <- length(comparisons)
@@ -98,6 +104,25 @@ plot_gene_map <- function(dna_segs,
     }
   }
 
+  # check seg_plots (user-defined plots)
+  if (!is.null(seg_plots)){
+    # if there is only one annotation, put it on the top
+    if (is.seg_plot(seg_plots)){
+      s_plot <- seg_plots
+      seg_plots <- c(list(s_plot), rep(list(NULL), n_dna_segs-1))
+    } else if (length(seg_plots) == n_dna_segs){
+      if (!all(sapply(seg_plots, function(x) is.seg_plot(x) || is.null(x))))
+        stop("All elements of seg_plots should be NULL or seg_plots objects")
+    } else stop ("seg_plots must be of same length as dna_segs")
+    seg_plot_h <- ifelse(sapply(seg_plots, is.null), 0, seg_plot_height)
+  } else {
+    seg_plot_h <- rep(0, n_dna_segs)
+  }
+  # check seg_plot_yaxis
+  if (is.null(seg_plot_yaxis) || !is.numeric(seg_plot_yaxis) ||
+      is.null(seg_plots))
+    seg_plot_yaxis <- 0
+  
   # check annotation
   if (!is.null(annotations)){
     # if there is only one annotation, put it on the top
@@ -226,8 +251,10 @@ plot_gene_map <- function(dna_segs,
   # the dna_seg_scale, if needed. 1 null in between for comparisons
   # to rewrite sometimes
   h <- rep(1, n_rows)
-  h[seq(1, n_rows, by=2)] <- 1 + scale_cex*dna_seg_scale + annot_h
-  dna_seg_heights <- unit(h, c(rep(c("lines", "null"), n_rows), "lines"))
+  h[seq(2, n_rows, by=3)] <- 1 + scale_cex*dna_seg_scale + annot_h
+  h[seq(1, n_rows, by=3)] <- seg_plot_h
+  dna_seg_heights <- unit(h, c(rep(c(seg_plot_height_unit, "lines", "null"),
+                                   n_dna_segs), "lines"))
   
   # deal with resetting symbols
   if (!is.null(gene_type)){
@@ -309,15 +336,22 @@ plot_gene_map <- function(dna_segs,
   max_length <- unpadded_lengths[longest_seg]
   scale_unit <- diff(pretty(c(0, max_length), n=n_scale_ticks+2)[1:2])
   
-  ### trim dna_segs ###
+  ### trim dna_segs & seg_plot ###
   # initiate new object: create subsegments by trimming original dna_seg
+  seg_subplots <- list()
   dna_subsegs <- list()                    
   for (i in 1:n_dna_segs){
     n_subsegs <- nrow(xlims[[i]])
     dna_subsegs[[i]] <- list()
+    seg_subplots[[i]] <- list()
     for (j in 1:n_subsegs){
       dna_subsegs[[i]][[j]] <- trim.dna_seg(dna_segs[[i]], c(xlims[[i]]$x0[j],
                                                              xlims[[i]]$x1[j]))
+      if (seg_plot_h[[i]] > 0){
+        seg_subplots[[i]][[j]] <- trim.seg_plot(seg_plots[[i]],
+                                                c(xlims[[i]]$x0[j],
+                                                  xlims[[i]]$x1[j]))
+      }
     }
   }
   ### trim comparisons ###
@@ -397,11 +431,12 @@ plot_gene_map <- function(dna_segs,
   padded_lengths <- sapply(xlims, function(x) sum(x$length)) +
     sapply(offsets, sum)
   max_length <- max(padded_lengths)
+  longest_segment <- which.max(padded_lengths)
   
   #----------------------------------------------------------------------------#
   # collect grobs
   #----------------------------------------------------------------------------#
-  ### collect dna_seg & dna_seg_scale grobs ###
+  ### collect dna_seg, dna_seg_scale & seg_plot grobs ###
   dna_seg_grobs <- list()
   dna_seg_scale_grobs <- list()
   for (i in 1:n_dna_segs){
@@ -413,7 +448,7 @@ plot_gene_map <- function(dna_segs,
         dna_subsegs[[i]][[j]] <- dna_subsegs[[i]][[j]][1:debug,]
       # end debug
       dna_seg_grobs[[i]][[j]] <- dna_seg_grob(dna_subsegs[[i]][[j]],
-                                            arrow_head_len, i)
+                                            arrow_head_len, i, ...)
       dna_seg_scale_grobs[[i]][[j]] <-
         if (dna_seg_scale[[i]])
           dna_seg_scale_grob(range=xlims[[i]][j,c("x0","x1")],
@@ -421,7 +456,36 @@ plot_gene_map <- function(dna_segs,
         else NULL
     }
   }
-
+  ### collect seg_plot_grobs & ylims
+  seg_plot_grobs <- list()
+  seg_plot_ylims <- list()
+  for (i in 1:n_dna_segs){
+    seg_plot_grobs[[i]] <- list()
+    xl_sg <- c(Inf, -Inf)
+    for (j in 1:length(dna_subsegs[[i]])){
+      if (length(seg_plots[[i]]) > 0){
+        grb <- do.call(seg_subplots[[i]][[j]]$func, seg_subplots[[i]][[j]]$args)
+        rng <- nice_ylim.seg_plot(seg_subplots[[i]][[j]])
+        xl_sg[1] <- min(xl_sg[1], rng[1])
+        xl_sg[2] <- max(xl_sg[2], rng[2])
+        seg_plot_grobs[[i]][[j]] <- grb
+      }
+      else {
+        seg_plot_grobs[[i]] <- NULL
+      }
+    }
+    seg_plot_ylims[[i]] <- if (is.null(seg_subplots[[i]]$ylim))
+      xl_sg else seg_subplots[[i]]$ylim
+  }
+  ### collect seg_plot_yaxis_grobs
+  seg_plot_yaxis_grobs <- list()
+  for (i in 1:n_dna_segs){
+    seg_plot_yaxis_grobs[[i]] <-
+      if (length(seg_plots[[i]]) > 0 && seg_plot_yaxis > 0)
+        yaxis_grob(seg_plot_ylims[[i]], cex=seg_plot_yaxis_cex,
+                 n=seg_plot_yaxis, i)
+      else NULL
+  }
   ### collect comparison grobs ###
   comparison_grobs <- list()
   if (n_comparisons > 0){
@@ -512,13 +576,16 @@ plot_gene_map <- function(dna_segs,
     upViewport()
   }
 
-  # frame: columns=tree,maps,legend rows=maps+tree+legend,scale 
+  # frame: columns=tree,maps,legend rows=maps+tree+legend,scale
+  seg_plot_yaxis_w <- if (seg_plot_yaxis > 0 &&
+                          !is.null(seg_plots[[longest_segment]]))
+    unit(3, "grobwidth", data=seg_plot_yaxis_grobs[[longest_segment]])
+  else unit(0, "null")
   pushViewport(viewport(layout.pos.row=2,
                         layout=grid.layout(2, 3,
-                          heights=unit(c(1, scale_h),
-                            c("null", "lines")),
-                          widths=unit.c(tree_w,
-                            unit(c(1, 0), c("null", "null")))),
+                          heights=unit(c(1, scale_h), c("null", "lines")),
+                          widths=unit.c(tree_w, unit(1, "null"),
+                            seg_plot_yaxis_w)),
                         name="frame"))
   # scale
   if (scale) {
@@ -531,30 +598,36 @@ plot_gene_map <- function(dna_segs,
   # tree or labels. Height is 1-3 lines because margin is 2 in plotarea,
   # and 1 to center to the middle of each dna_seg (1/2 line top and bottom)
   if (!is.null(tree_grob)){
-    # make a supplementary 1/2 line margin if there is a scale in the last
+    # extra margin if there is an annotation in the first dna_seg
+    annot_margin <- unit(if (is.null(annotations[[1]])) 0 else
+                         annotation_height, "lines")
+    # extra margin is there is a seg_plot in the first dna_seg
+    seg_plot_margin <- unit(if (is.null(seg_plot_grobs[[1]][[1]])) 0 else
+                            seg_plot_height, seg_plot_height_unit)
+    # make a supplementary margin if there is a scale in the last
     # dna_seg to get labels facing the text. Hack.
-    bot_margin <- scale_cex * dna_seg_scale[[n_dna_segs]]
-    # do the same if there is a annotation in the first dna_seg
-    top_margin <- if (is.null(annotations[[1]])) 0 else annotation_height
-    #bot_margin <- 1
+    hli <- unit(0.5, "lines")
+    dna_scale_margin <- unit(scale_cex * dna_seg_scale[[n_dna_segs]], "lines")
     pushViewport(viewport(layout.pos.row=1, layout.pos.col=1,
-                          name="tree_outer"),
-                 viewport(width=unit(1, "npc")-unit(1, "lines"),
-                          height=unit(1, "npc")-unit(1 + bot_margin +
-                            top_margin, "lines"),
-                          y=unit(1, "npc")-unit(0.5 + top_margin, "lines"),
-                          just=c("centre", "top"),
+                          layout=grid.layout(6, 1,
+                            heights=unit.c(seg_plot_margin, annot_margin, hli,
+                              unit(n_dna_segs*(1+seg_plot_height), "null"),
+                              hli, dna_scale_margin)),
+                          name="tree_outer"))
+    pushViewport(viewport(layout.pos.row=4,
+                          width=unit(1, "npc")-unit(1, "lines"),
+                          just=c("centre", "bottom"),
                           name="tree"))
     grid.draw(tree_grob$grob)
-    upViewport(2)    
+    upViewport(2) # up tree & tree_outer vp
   } 
   
   # plotting area
   pushViewport(viewport(layout.pos.row=1, layout.pos.col=2,
-                        name="plotarea_outer"),
+                        name="plotarea_outer", clip="on"),
                viewport(width=unit(1, "npc")-unit(1, "lines"),
                         height=unit(1, "npc")-unit(0, "lines"),
-                        name="plotarea", clip="on"))
+                        name="plotarea", clip="off"))
 
   # map grid
   pushViewport(viewport(layout=grid.layout(n_rows, 1,
@@ -562,7 +635,7 @@ plot_gene_map <- function(dna_segs,
   ### comparisons ###
   if (n_comparisons > 0){
     for (i in 1:n_comparisons){
-      pushViewport(viewport(layout.pos.row=2*i,
+      pushViewport(viewport(layout.pos.row=3*i,
                             yscale=c(0,1),
                             xscale=c(0, max_length),
                             #clip="on",
@@ -572,19 +645,53 @@ plot_gene_map <- function(dna_segs,
       upViewport() # pop comparisons[[i]] vp
     }
   }
-  ### dna_segs, annotations, scales ###
+  ### seg_plots, dna_segs, annotations, scales ###
   for (i in 1:n_dna_segs){
     n_dna_subsegs <- length(dna_subsegs[[i]])
-    n_cols <- n_dna_subsegs*2
+    n_cols <- n_dna_subsegs*2+1
     widths <- numeric(n_cols)
     widths[1:n_dna_subsegs*2] <- xlims[[i]]$length
     widths[1:n_dna_subsegs*2-1] <- offsets[[i]]
     widths_units <- unit(widths, rep("native", n_cols))
     heights <- unit(c(annot_h[i], 1, scale_cex*dna_seg_scale[i]),
                     c("lines", "null", "lines"))
+    # push seg_plot grid
+    pushViewport(viewport(layout.pos.row=3*i-2,
+                          layout=grid.layout(1, n_cols,
+                            widths=widths_units,
+                            just=c("left", "centre")),
+                          #clip="on",
+                          xscale=c(0,max_length),
+                          name=paste("seg_plot", i, sep=".")))
+    for (j in 1:n_dna_subsegs){
+      idx <- if (xlims[[i]]$strand[j] == 1) c("x0", "x1") else c("x1", "x0")
+      xscale <- as.numeric(xlims[[i]][j,idx])
+      if (!is.null(seg_plots[[i]])){
+        pushViewport(viewport(layout.pos.col=j*2,
+                              yscale=seg_plot_ylims[[i]],
+                              xscale=xscale,
+                              just=c("left", "centre"),
+                              name=paste("seg_subplot", i, j, sep=".")))
+        grid.draw(seg_plot_grobs[[i]][[j]])
+        upViewport() # up seg_subplot vp
+        
+      }
+    }
+    ## Draw y axis
+    if (!is.null(seg_plots[[i]]) && seg_plot_yaxis > 0){
+      pushViewport(viewport(layout.pos.col=n_cols,
+                            yscale=seg_plot_ylims[[i]],
+                            width=unit(1, "grobwidth",
+                              data=seg_plot_yaxis_grobs[[i]]),
+                            just=c("left", "centre"),
+                            name=paste("seg_plot_yaxis", i, sep=".")))
+      grid.draw(seg_plot_yaxis_grobs[[i]])
+      upViewport() # up seg plot yaxis
+    }
+    upViewport() # up seg_plot vp
     # push dna_seg grid (subsegments in cols, annotations, genes and
     # scales in rows)
-    pushViewport(viewport(layout.pos.row=2*i-1,
+    pushViewport(viewport(layout.pos.row=3*i-1,
                           layout=grid.layout(3, n_cols,
                             heights=heights,
                             widths=widths_units,
@@ -592,6 +699,7 @@ plot_gene_map <- function(dna_segs,
                           #clip="on",
                           xscale=c(0,max_length),
                           name=paste("scale_and_dna_seg", i, sep=".")))
+    #browser()
     for (j in 1:n_dna_subsegs){
       # calculate xscale
       idx <- if (xlims[[i]]$strand[j] == 1) c("x0", "x1") else c("x1", "x0")
@@ -634,7 +742,6 @@ plot_gene_map <- function(dna_segs,
                       name=paste("dna_seg_line", i, j, sep="."),
                       gp=gpar(col=dna_seg_line[i]))
       }
-      #grid.xaxis()
       # draw dna_seg grobs
       grid.draw(dna_seg_grobs[[i]][[j]])
       upViewport() # up dna_seg

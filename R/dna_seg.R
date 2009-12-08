@@ -62,9 +62,9 @@ as.dna_seg <- function(df, col="blue", lty=1, lwd=1, pch=8, cex=1,
       stop("Non-numeric start or end")
     if (!all(is.numeric(c(df$lwd, df$lty, df$pch, df$cex))))
       stop("lwd, lty, pch and cex must be numeric")
-    if (!is.character(df$gene_type) || !all(df$gene_type %in% gene_types()))
+    if (!is.character(df$gene_type))
       stop(paste("gene_type must be a character vector, made of:",
-                 paste(gene_types(), collapse=", ")))
+                 paste(gene_types(), collapse=", "), "or a function name"))
   }
   else {
     stop("Unable to handle this format")

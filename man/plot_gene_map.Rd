@@ -20,6 +20,11 @@ plot_gene_map(dna_segs,
               annotations = NULL, 
               annotation_height = 1, 
               annotation_cex = 0.8, 
+              seg_plots=NULL,    # user-defined plots
+              seg_plot_height=3, # height of plots (in lines)
+              seg_plot_height_unit="lines", # unit of preceding
+              seg_plot_yaxis=3, # if non-null or non false, ticks
+              seg_plot_yaxis_cex=scale_cex,
               xlims = NULL,
               offsets = NULL,
               minimum_gap_size = 0.05,
@@ -40,8 +45,8 @@ plot_gene_map(dna_segs,
               global_color_scheme = c("auto", "auto", "blue_red", 0.5),
               override_color_schemes = FALSE,
               plot_new=TRUE,
-              debug = 0
-              )
+              debug = 0,
+              ...)
 }
 \arguments{
   \item{dna_segs}{
@@ -78,6 +83,32 @@ plot_gene_map(dna_segs,
   \item{annotation_cex}{
     Numeric. The \code{cex} (i.e. the character expansion) of the
     annotation line. 
+  }
+  \item{seg_plots}{
+    A list of \code{seg_plot} objects of the length as \code{dna_segs},
+    a single \code{seg_plot} or \code{NULL} (default). To draw plots
+    associated to a \code{dna_seg}. See \code{\link{seg_plot}} for more
+    information and some examples.
+  }
+  \item{seg_plot_height}{
+    The height of the \code{seg_plot} regions. By default, equals to 3
+    (lines, see next argument).
+  }
+  \item{seg_plot_height_unit}{
+    The unit of the height of the \code{seg_plot} regions. Should be a
+    valid \code{unit}. See the \code{grid} documentation for more
+    information. If equals to "null", then the height will be calculated
+    as a proportion of the comparison region (i.e. 0.5 means the
+    \code{seg_plot} region will be half the size of the \code{comparison}. 
+  }
+  \item{seg_plot_yaxis}{
+    Can be \code{NULL}, \code{FALSE} or a numercic. In the first two
+    cases, no y-axis is drawn for the \code{seg_plot}s. If numeric, a
+    axis is drawn with approximately that number of ticks. 
+  }
+  \item{seg_plot_yaxis_cex}{
+    The character expansion of the \code{seg_plot_yaxis} labels. Equals
+    to \code{scale_cex} by default.
   }
   \item{xlims}{
     A list with as many elements as there are \code{dna_seg}s, or
@@ -183,13 +214,19 @@ plot_gene_map(dna_segs,
     A numeric. If > 0, only that number of element will be plotted for
     each \code{dna_seg} and \code{comparison}.
   }
+  \item{\dots}{
+    Further arguments to be passed to user-defined graphical functions.
+  }
 }
 \details{
-  One line is plotted per \code{dna_seg}. Eventually, the space between
-  the lines will be filled with the \code{comparisons}.
-
+  One line is plotted per \code{\link{dna_seg}}. Eventually, the space 
+  between the lines will be filled with the
+  \code{\link{comparison}}s. \code{dna_seg}s can be annotated with
+  \code{\link{annotation}}s, and accompagnying data can be plotted using
+  \code{\link{seg_plot}}. 
+  
   A phylogenetic tree (a \code{phylog} object from package \code{ade4})
-  can be drawn at the left of the plot. The tree doesn't need to be
+  can be drawn at the left of the plot. The tree does not need to be
   ordered as the \code{dna_seg_labels}, but a permutation of the tree
   with that order should exist. If the tree is large, the number of
   permutations become too large, and the function will stop (>100000
@@ -202,12 +239,11 @@ plot_gene_map(dna_segs,
   \code{newick2phylog} doesn't support decimal values. Tags will be
   ignored if they start with "I", and trimmed if they start with "X".
 
-  A scale, a main title and an annotation row at the top of the plot can
-  also be added.
-
   The format of the elements of \code{dna_segs} is previously determined
   in the object or can be globally set by \code{gene_type}. See the
-  function \code{\link{gene_types}} to return the available types.
+  function \code{\link{gene_types}} to return the available types. Gene
+  type can also be user-defined, using a function returning a
+  \code{grob}. See \code{\link{gene_types}} for more details.
 
   \code{xlims} allow the user to plot subsegments of a
   \code{dna_seg}. \code{xlims} consists of a list composed of as many
@@ -225,6 +261,10 @@ plot_gene_map(dna_segs,
   of the gaps, including the first one from the border of the plot to
   the first subsegment.
 
+  A main title (\code{main}) can also be added at the top of the plot,
+  at the position defined by \code{main_pos}. A general scale
+  can be added at the bottom right of the plot (\code{scale}).
+  
   \code{dna_seg_scale} gives the ability to plot scales on one, some or
   every segment. \code{c(TRUE, FALSE, TRUE)} will add scales to the
   first and third segments.
@@ -256,6 +296,8 @@ plot_gene_map(dna_segs,
   \code{\link{read_dna_seg_from_tab}}, \code{\link{read_dna_seg_from_ptt}},
   \code{\link{read_comparison_from_tab}} and
   \code{\link{read_comparison_from_blast}} to read from files;
+  \code{\link{annotation}} to annotate \code{dna_seg}s;
+  \code{\link{seg_plot}} to draw plots next to \code{dna_seg}s;
   \code{\link{gene_types}} for \code{gene_type} argument;
   \code{\link{apply_color_scheme}} for color schemes;
 }

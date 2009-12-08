@@ -16,6 +16,11 @@ export(
   is.annotation,
   as.annotation,
   range.annotation,
+
+  seg_plot,
+  is.seg_plot,
+  as.seg_plot,
+  trim.seg_plot,
        
   read_dna_seg_from_tab,
   read_dna_seg_from_file,
@@ -32,6 +37,7 @@ export(
   human_nt,
   apply_color_scheme,
   middle,
+  auto_annotate,
 
   artemisColors,
   

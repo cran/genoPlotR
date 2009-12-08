@@ -2,7 +2,7 @@
 # Grobs
 ################################################################################
 # create gene grobs
-gene_grob <- function(gene, head_len=200, i=0){
+gene_grob <- function(gene, head_len=200, i=0, ...){
   if (!is.dna_seg(gene)) stop("A dna_seg object is required")
   if (nrow(gene) > 1) stop ("gene must be single-row")
   mid <- (gene$start + gene$end)/2
@@ -108,7 +108,12 @@ gene_grob <- function(gene, head_len=200, i=0){
                      default.units="native")
   }
   else {
-    stop(paste("Invalid gene_type:",  gene$gene_type))
+    
+    grob <- try(do.call(gene$gene_type, list(gene, ...)), silent=FALSE)
+    #browser()
+    if (!(is.grob(grob) || all(sapply(grob, is.grob))))
+      stop(paste(gene$gene_type, "is an invalid gene_type or",
+                 "does not return a grob"))
   }
   grob
 }
@@ -247,4 +252,19 @@ gap_grob <- function(w, m, i, j){
                gp=gpar(col=grey(0.3)),
                default.units="native",
                name=paste("gap", i, j, sep="."))
+}
+## yaxis grob
+yaxis_grob <- function(ylim=c(0, 1), cex=0.6, n=3, i){
+  at <- pretty(ylim, n=n)
+  at <- at[at >= ylim[1] & at <= ylim[2]]
+  coords <- yaxis_coords(at, x0=0, x1=0.5*cex)
+  gList(segmentsGrob(x0=unit(coords$x0, "lines"), x1=unit(coords$x1, "lines"),
+                     y0=unit(coords$y0, "native"), y1=unit(coords$y1, "native"),
+                     name=paste("yaxis.segments", i, sep="."),
+                     default.units="native"),
+        textGrob(at, x=unit(1, "lines"), y=unit(at, "native"),
+                 gp=gpar(cex=cex), just=c("left", "centre"),
+                 name=paste("yaxis.labels", i, sep="."),
+                 default.units="native")
+        )
 }

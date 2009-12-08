@@ -8,6 +8,7 @@ phylog_grob <-
             labels.leaves = names(x$leaves), clabel.leaves = 1,
             labels.nodes = names(x$nodes), 
             clabel.nodes = 0.8,
+            leave.seg.col = grey(0.7),
             sub = "", csub = 1.25, possub = "bottomleft", 
             draw.box = FALSE, ...) 
 {
@@ -55,9 +56,9 @@ phylog_grob <-
                  name=paste("tree.leave.label", i, sep="."))
       labelSegGrobs[[i]] <-
         segmentsGrob(xcar, y[i], xx[i], y[i],
-                     gp=gpar(col=grey(0.7)), default.units="native",
+                     gp=gpar(col=leave.seg.col), default.units="native",
                      name=paste("tree.leave.segment", i, sep="."))
-    }
+   }
   }
   yleaves <- y[1:leaves.number]
   xleaves <- xx[1:leaves.number]
@@ -143,7 +144,7 @@ phylog_grob <-
 
 
 # permute tree leaves to match labels
-permute_tree <- function(tree, labels){
+permute_tree <- function(tree, labels, no.over=100000){
   ref <- names(tree$leaves)
   n <- length(ref)
   wanted_permut <- rep(NA, n)
@@ -157,7 +158,7 @@ permute_tree <- function(tree, labels){
     names(res) <- labels
     return(res)
   }
-  permuts <- enum.phylog(tree, 100000)
+  permuts <- enum.phylog(tree, no.over)
   if (is.null(permuts)) stop("Number of permutations too large, use a tree that has labels in the same order as dna_segs")
   equals <- apply(permuts, 1, function(x)
                   identical(as.numeric(x), as.numeric(wanted_permut)))

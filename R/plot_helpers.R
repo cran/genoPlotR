@@ -46,6 +46,14 @@ bracket_coord <- function(start, end, y=0, w=0.1){
   y <- c(y, rep(y+w, 2), y)
   list(x=x, y=y)
 }
+# axis coords
+yaxis_coords <- function(at, x0=0, x1=0.5){
+  n <- length(at)
+  list(x0 = c(rep(x0, n), x1),
+       x1 = rep(x1, n+1),
+       y0 = c(at, at[1]),
+       y1 = c(at, at[n]))
+}
 # human readable coordinates
 human_nt <- function(nt, signif=FALSE){
   tag <- "nt"

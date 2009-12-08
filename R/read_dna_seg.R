@@ -48,7 +48,8 @@ read_dna_seg_from_genbank <- function(file, tagsToParse=c("CDS"), ...){
 # Read genes from a GenBank file
 read_dna_seg_from_file <- function(file, tagsToParse=c("CDS"),
                                    fileType="detect", meta_lines=2,
-                                   gene_type="auto", header=TRUE, ...){
+                                   gene_type="auto", header=TRUE,
+                                   extra_fields=NULL, ...){
   
   # Import data from file into variable
   importedData <- readLines(file)
@@ -157,24 +158,28 @@ read_dna_seg_from_file <- function(file, tagsToParse=c("CDS"),
     if(TYPE == "EMBL") {
       startLineOfFeature <- grep("FT   [[:alnum:]]", dataFeatures)
     }
-    startLineOfFeature <- c(startLineOfFeature, length(dataFeatures))
+    startLineOfFeature <- c(startLineOfFeature, length(dataFeatures)+1)
     
     
     # Define variables for storage
     nF <- length(startLineOfFeature)-1
-    name=character()
-    start=numeric()
-    end=numeric()
-    strand=numeric()
-    length=numeric()
-    pid=character()
-    gene=character()
-    synonym=character()
-    product=character()
-    color=character()
-    proteinid=character()
-    feature=character()
-    geneType=character()
+    name <- character()
+    start <- numeric()
+    end <- numeric()
+    strand <- numeric()
+    length <- numeric()
+    pid <- character()
+    gene <- character()
+    synonym <- character()
+    product <- character()
+    color <- character()
+    proteinid <- character()
+    feature <- character()
+    geneType <- character()
+    extra <- list()
+    for (tag in extra_fields){
+      extra[[tag]] <- character()
+    }
     
     # Loop over all features                     
     for(counter in 1:nF){
@@ -300,6 +305,13 @@ read_dna_seg_from_file <- function(file, tagsToParse=c("CDS"),
 
             # Extract color
             color <- c(color, extract_data("(color|colour)=", currentFeature))
+
+            # Extract extra
+            for (tag in names(extra)){
+              extra[[tag]] <- c(extra[[tag]],
+                                extract_data(paste(tag, "=", sep=""),
+                                             currentFeature))
+            }
             
             # Set geneType
             if (length(grep("intron", currentFeature[1])) > 0){
@@ -378,6 +390,10 @@ read_dna_seg_from_file <- function(file, tagsToParse=c("CDS"),
     if (!all(color == "NA")){
       color[color == "NA"] <- "blue"
       table$col <- color
+    }
+    ## Adding extra fields
+    for (tag in extra_fields){
+      table[[tag]] <- extra[[tag]]
     }
     # SIMPLE ERROR HANDLING
     if (dim(table)[1] == 0)
