@@ -2,7 +2,7 @@
 # Plot helpers
 ################################################################################
 # calculate arrow coordinates from gene coordinates
-arrow_coord <- function(x1, x2, y1=0.5, strand=NULL, width=1, head_len=100){
+arrow_coord <- function(x1, x2, y=0.5, strand=NULL, width=1, head_len=100){
   # take care of strand, to get x1 as bottom and x2 as tip of arrow
   if (!is.null(strand) && strand == -1){
     x_temp <- x2
@@ -20,8 +20,8 @@ arrow_coord <- function(x1, x2, y1=0.5, strand=NULL, width=1, head_len=100){
   } else {
     xi <- x2+head_len
   }
-  list(x=c(x1,    xi,    xi,      x2, xi,      xi,    x1),
-       y=c(y1-w2, y1-w2, y1-w2*2, y1, y1+w2*2, y1+w2, y1+w2)
+  list(x=c(x1,   xi,   xi,     x2, xi,     xi,   x1),
+       y=c(y-w2, y-w2, y-w2*2, y,  y+w2*2, y+w2, y+w2)
        )
 }
 # coords for a block

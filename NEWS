@@ -1,6 +1,12 @@
 genoPlotR changes
 =================
 
+0.6.1 - 2011-03-30
+------------------
+BUGFIX:
+- Vignette contained non-ASCII characters
+- Fixed an incoherent variable name in arrow_coord
+
 0.6 - 2011-03-16
 ------------------
 NEW FEATURES:
