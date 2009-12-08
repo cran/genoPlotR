@@ -1,6 +1,8 @@
 \name{three_genes}
 \docType{data}
 \alias{three_genes}
+\alias{dna_segs}
+\alias{comparisons}
 \title{Three genes data set}
 \description{
   A set of three made-up genes, compared in three chromosomes.

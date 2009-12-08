@@ -1,6 +1,7 @@
 \name{mauve_bbone}
 \docType{data}
 \alias{mauve_bbone}
+\alias{bbone}
 \title{Mauve backbone of 4 Bartonella genomes}
 \description{
   The result of a multiple genome alignment with Mauve. 
