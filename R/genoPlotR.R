@@ -17,6 +17,8 @@ plot_gene_map <- function(dna_segs,
                           annotation_cex=0.8, # size of annotations
                           xlims=NULL,
                           offsets=NULL, # regulates manually alignment of segs
+                          minimum_gap_size=0.05,
+                          fixed_gap_length=FALSE,
                           limit_to_longest_dna_seg=TRUE,
                           main=NULL, # main title
                           main_pos="centre", # centre, left, right
@@ -132,7 +134,7 @@ plot_gene_map <- function(dna_segs,
                                strand=1)
     }
   }
-  
+ 
   # check offsets
   if (!is.null(offsets) && length(offsets) != n_dna_segs){
     stop("Length of offsets not equal to number of dna_segs")
@@ -279,7 +281,8 @@ plot_gene_map <- function(dna_segs,
     xlims[[i]]$length <- xlims[[i]]$x1 - xlims[[i]]$x0
   }
   # default gap_length is a 20th of the max length
-  def_gap_length <- max(sapply(xlims, function(x) sum(x$length)))*0.05
+  def_gap_length <- max(sapply(xlims, function(x) sum(x$length)))*
+    minimum_gap_size
   unpadded_lengths <- sapply(xlims, function(x)
                              sum(x$length) + (nrow(x)-1)*def_gap_length)
   longest_seg <- which.max(unpadded_lengths)
@@ -297,7 +300,6 @@ plot_gene_map <- function(dna_segs,
                                                              xlims[[i]]$x1[j]))
     }
   }
-
   ### trim comparisons ###
   if (n_comparisons > 0){
     for (i in 1:n_comparisons){
@@ -323,8 +325,8 @@ plot_gene_map <- function(dna_segs,
   if (is.null(offsets)){
     prel_offsets <- lapply(xlims, function(x)
                            c(0, rep(def_gap_length, nrow(x)-1)))
-    offsets <- minimize_comps(comparisons, xlims,
-                              unpadded_lengths, prel_offsets)
+    offsets <- minimize_comps(comparisons, xlims, unpadded_lengths,
+                              prel_offsets, fixed_gap_length)
   } else {
     offsets <- as.list(offsets)
     for (i in 1:n_dna_segs){
@@ -534,7 +536,20 @@ plot_gene_map <- function(dna_segs,
 
   # map grid
   pushViewport(viewport(layout=grid.layout(n_rows, 1,
-                          heights=dna_seg_heights), name="map")) 
+                          heights=dna_seg_heights), name="map"))
+  ### comparisons ###
+  if (n_comparisons > 0){
+    for (i in 1:n_comparisons){
+      pushViewport(viewport(layout.pos.row=2*i,
+                            yscale=c(0,1),
+                            xscale=c(0, max_length),
+                            #clip="on",
+                            name = paste("comparison", i, sep=".")))
+      # draw comparison grobs
+      grid.draw(comparison_grobs[[i]])
+      upViewport() # pop comparisons[[i]] vp
+    }
+  }
   ### dna_segs, annotations, scales ###
   for (i in 1:n_dna_segs){
     n_dna_subsegs <- length(dna_subsegs[[i]])
@@ -614,19 +629,6 @@ plot_gene_map <- function(dna_segs,
       }
     }
     upViewport() # up scale_and_dna_seg vp
-  }
-  ### comparisons ###
-  if (n_comparisons > 0){
-    for (i in 1:n_comparisons){
-      pushViewport(viewport(layout.pos.row=2*i,
-                            yscale=c(0,1),
-                            xscale=c(0, max_length),
-                            #clip="on",
-                            name = paste("comparison", i, sep=".")))
-      # draw comparison grobs
-      grid.draw(comparison_grobs[[i]])
-      upViewport() # pop comparisons[[i]] vp
-    }
   }
   upViewport(2) # pop map viewports
   upViewport(2) # pop plotarea viewport

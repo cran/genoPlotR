@@ -1,6 +1,27 @@
 genoPlotR changes
 =================
 
+0.5.3 - 2010-09-08
+------------------
+Article published in Bioinformatics, added a CITATION file.
+
+0.5.2 - 2010-08-24
+------------------
+NEW FEATURES:
+- Added read_dna_seg_from_fasta, that can read a fasta file and return one
+  segment of the corresponding length
+- Added two arguments to plot_gene_map, to allow to define the minimum gap
+  length and to allow to have fixed gap length but still automating the 
+  placement of the whole segment.
+BUGFIX:
+- Corrected a bug that provoked errors in displaying subsegments that were 
+  closer to each other than the gap length
+
+0.5.1 - 2010-08-19
+------------------
+BUGFIX:
+- Added aliases in the documentation to avoid warnings when compiling
+
 0.5   - 2010-06-14
 ------------------
 NEW FEATURES:

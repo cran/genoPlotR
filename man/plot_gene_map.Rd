@@ -20,7 +20,9 @@ plot_gene_map(dna_segs,
               annotation_height = 1, 
               annotation_cex = 0.8, 
               xlims = NULL,
-              offsets = NULL, 
+              offsets = NULL,
+              minimum_gap_size = 0.05,
+              fixed_gap_length = FALSE,
               limit_to_longest_dna_seg = TRUE,
               main = NULL, 
               main_pos = "centre", 
@@ -85,6 +87,15 @@ plot_gene_map(dna_segs,
     \code{xlims}). Gives then the length of each gap. If \code{NULL},
     the size of the gaps is optimized to minimize the lengths of the
     comparisons. See details.
+  }
+  \item{minimum_gap_size}{
+    A numeric. How much of the plotting region should a gap be, at
+    least. Default is 0.05 (20\% of the plotting region).
+  }
+  \item{fixed_gap_length}{
+    Should the gaps have a fixed length? Otherwise, the gap length will
+    be optimized to minimize the size of comparisons. \code{FALSE} by
+    default. 
   }
   \item{limit_to_longest_dna_seg}{
     A logical. Should the plot be restricted to the longest

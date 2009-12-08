@@ -2,8 +2,8 @@
 # Plot helpers: list and determine gene "types"
 ################################################################################
 gene_types <- function(auto=TRUE){
-  types <- c("arrows", "blocks", "bars", "points", "side_blocks",
-             "side_bars", "side_points", "text", "side_text",
+  types <- c("arrows", "headless_arrows", "blocks", "bars", "points", "text", 
+             "side_blocks", "side_bars", "side_points", "side_text",
              "introns", "exons", "side_exons")
   if (auto) types <- c("auto", types)
   types

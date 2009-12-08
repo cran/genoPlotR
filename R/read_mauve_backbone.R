@@ -3,7 +3,7 @@
 ################################################################################
 read_mauve_backbone <- function(file, ref=1, gene_type="side_blocks",
                                 header=TRUE, filter_low=0, ...){
-  blocks <- read.table(file, stringsAsFactors=FALSE, h=header)
+  blocks <- read.table(file, stringsAsFactors=FALSE, header=header)
   n_orgs <- ncol(blocks)/2
   n_blocks <- nrow(blocks)
   # ordering from ref: 
@@ -23,6 +23,10 @@ read_mauve_backbone <- function(file, ref=1, gene_type="side_blocks",
     blocks <- blocks[min_sizes >= filter_low,]
     n_blocks <- nrow(blocks)
   }
+  # check that there are rows remaining
+  if (nrow(blocks) < 1){
+    stop("No row left in data. Check data and/or lower filter_low argument")
+  }
   # prepare objects
   dna_segs <- list()
   comparisons <- list()
@@ -38,6 +42,9 @@ read_mauve_backbone <- function(file, ref=1, gene_type="side_blocks",
                      start=abs(s), end=abs(e), strand=strand,
                      stringsAsFactors=FALSE)
     df$col <- col
+    if (all(df$strand == 0)){
+      stop("One or several of the columns is composed only of 0. Check data")
+    }
     dna_segs[[i]] <- as.dna_seg(df[df$strand != 0,], gene_type=gene_type, ...)
     # prepare comparison (not with i=1)
     if (i > 1){

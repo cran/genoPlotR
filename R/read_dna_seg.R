@@ -56,17 +56,21 @@ read_dna_seg_from_file <- function(file, tagsToParse=c("CDS"),
   # Find file type
   TYPE <- "Unknown"
   if (fileType == "detect" || fileType == "Detect" || fileType == "DETECT") {
+    if (length(grep(">", importedData[1]))) {TYPE <- "fasta"}
     if (length(grep("^ID", importedData))) {TYPE <- "EMBL"}
     if (length(grep("^LOCUS", importedData))) {TYPE <- "Genbank"}
   }
-  if (fileType == "EMBL" || fileType == "embl" || fileType == "Embl") {
+  else if (fileType == "EMBL" || fileType == "embl" || fileType == "Embl") {
     TYPE <- "EMBL"
   }
-  if (fileType == "Genbank" || fileType == "GENBANK" || fileType == "genbank") {
+  else if (fileType == "Genbank" || fileType == "GENBANK" || fileType == "genbank") {
     TYPE <- "Genbank"
   }
-  if (fileType == "Ptt" || fileType == "PTT" || fileType == "ptt") {
+  else if (fileType == "Ptt" || fileType == "PTT" || fileType == "ptt") {
     TYPE <- "PTT"
+  }
+  else if (fileType == "Fasta" || fileType == "FASTA" || fileType == "fasta") {
+    TYPE <- "Fasta"
   }
   if (TYPE == "Unknown") {
     stop("fileType has to be either 'detect', 'embl', 'genbank' or 'ptt'. Note if file type is .ptt, please specify this rather than using 'detect'.")
@@ -77,9 +81,13 @@ read_dna_seg_from_file <- function(file, tagsToParse=c("CDS"),
     dna_seg <- read_dna_seg_from_ptt(file, meta_lines, header, ...)
     return(dna_seg)
   }
+  else if (TYPE == "Fasta"){
+    dna_seg <- read_dna_seg_from_fasta(file)
+    return(dna_seg)
+  }
   
   # If type isn't PTT do everything else...
-  if(TYPE != "PTT") {
+  else {
     
     # Extarct and name main segments
     if(TYPE == "Genbank") {
@@ -366,7 +374,21 @@ read_dna_seg_from_file <- function(file, tagsToParse=c("CDS"),
   
 # End of genbank to dna_seg
 }
-
+read_dna_seg_from_fasta <- function(file, ...){
+  # read data
+  data <- readLines(file)
+  title <- data[1]
+  if (length(grep("^>\\w+", title, perl=TRUE)) < 1){
+    stop(paste(file, "does not seem like a valid fasta file"))
+  }
+  name <- unlist(strsplit(title, " ", fixed=TRUE))[1]
+  name <- substr(name, 2, nchar(name))
+  seq <- data[-1]
+  len <- sum(nchar(seq))
+  dna_seg <- as.dna_seg(data.frame(name=name, start=1, end=len, strand=1,
+                                   stringsAsFactors=FALSE), ...)
+  return(dna_seg)
+}
 # reading genes from a file. Use source=tab or ptt to specify type
 read_dna_seg_from_ptt <- function(file, meta_lines=2, header=TRUE, ...){
   # reads meta info

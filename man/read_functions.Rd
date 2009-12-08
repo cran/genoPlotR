@@ -4,15 +4,16 @@
 \alias{read_dna_seg_from_file}
 \alias{read_dna_seg_from_embl}
 \alias{read_dna_seg_from_genbank}
+\alias{read_dna_seg_from_fasta}
 \alias{read_dna_seg_from_ptt}
 \alias{read_comparison_from_tab}
 \alias{read_comparison_from_blast}
 \alias{read_mauve_backbone}
 \title{Reading functions}
 \description{
-  Functions to parse dna_seg objects from tab, embl, genbank, ptt files or
-  from mauve backbone files, and comparison objects from tab or blast
-  files.
+  Functions to parse dna_seg objects from tab, embl, genbank, fasta, ptt
+  files or from mauve backbone files, and comparison objects from tab or blast
+  files. 
 }
 \usage{
 read_dna_seg_from_tab(file, header = TRUE, ...)
@@ -20,6 +21,7 @@ read_dna_seg_from_file(file, tagsToParse=c("CDS"), fileType = "detect",
                        meta_lines = 2, gene_type = "auto", header = TRUE, ...)
 read_dna_seg_from_embl(file, tagsToParse=c("CDS"), ...)
 read_dna_seg_from_genbank(file, tagsToParse=c("CDS"), ...)
+read_dna_seg_from_fasta(file, ...)
 read_dna_seg_from_ptt(file, meta_lines = 2, header = TRUE, ...)
 read_comparison_from_tab(file, header = TRUE, ...)
 read_comparison_from_blast(file, sort_by = "per_id",
@@ -124,7 +126,11 @@ read_mauve_backbone(file, ref = 1, gene_type = "side_blocks",
   be presented as a 'CDS_pseudo' or a 'gene_pseudo' feature type
   respectively in the resulting table. Certain constraints apply to
   these file types, of which some are: embl files must contain one and
-  only one ID tag; genbank files may only contain one and only one locus tag.
+  only one ID tag; genbank files may only contain one and only one locus
+  tag.
+
+  Fasta files are read as one gene, as long as there are nucleotides in
+  the fasta file.
 
   Ptt (or protein table) files are a tabular format giving a bunch of
   information on each protein of a genome (or plasmid, or virus,

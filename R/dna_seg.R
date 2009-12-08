@@ -18,6 +18,10 @@ as.dna_seg <- function(df, col="blue", lty=1, lwd=1, pch=8, cex=1,
   if (is.dna_seg(dna_seg)) return(df)
   #if (is.list(df) && !is.data.frame(df)) df <- dna_seg(df)
   if (is.data.frame(df)) {
+    # check that it has rows
+    if (nrow(df) < 1){
+      stop("Number of rows is 0, check data input")
+    }
     # check for columns
     names <- c("name", "start", "end", "strand")
     if (!identical(names(df)[1:4], names))

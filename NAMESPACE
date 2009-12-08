@@ -21,6 +21,7 @@ export(
   read_dna_seg_from_file,
   read_dna_seg_from_embl,
   read_dna_seg_from_genbank,
+  read_dna_seg_from_fasta,
   read_dna_seg_from_ptt,
   read_comparison_from_tab,
   read_comparison_from_blast,

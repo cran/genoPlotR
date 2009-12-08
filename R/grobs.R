@@ -8,9 +8,14 @@ gene_grob <- function(gene, head_len=200, i=0){
   mid <- (gene$start + gene$end)/2
   name <- paste("seg.", i, ".", gene$name, sep="")
   # arrows
-  if (gene$gene_type == "arrows"){
-    arrow <- arrow_coord(x1=gene$start, x2=gene$end,
-                         y=0.5, strand=gene$strand, head_len=head_len)
+  if (gene$gene_type == "arrows" || gene$gene_type == "headless_arrows"){
+    if (gene$gene_type == "arrows"){
+      arrow <- arrow_coord(x1=gene$start, x2=gene$end,
+                           y=0.5, strand=gene$strand, head_len=head_len)
+    }
+    else {
+      arrow <- block_coord(gene$start, gene$end, strand=1, y=0.25)
+    }
     grob <- polygonGrob(arrow$x, arrow$y, name=name,
                         gp=gpar(fill=gene$col, lty=gene$lty, lwd=gene$lwd),
                         default.units="native")
@@ -110,8 +115,8 @@ similarity_grob <- function(similarity, i){
   if (!is.comparison(similarity)) stop("A comparison object is required")  
   if (nrow(similarity) > 1) stop ("gene must be single-row")
   if (is.null(similarity$col)) similarity$col <- grey(0.5)
-  x1 <- c(similarity$start1, similarity$end1)#+offset1-xlim1[1]
-  x2 <- c(similarity$end2, similarity$start2)#+offset2-xlim2[1]
+  x1 <- c(similarity$start1, similarity$end1)
+  x2 <- c(similarity$end2, similarity$start2)
   polygonGrob(x=c(x1, x2), y=c(1, 1, 0, 0),
               name=paste("comp.", i, ".",
                 similarity$start1, "-", similarity$end1, "_",
@@ -124,6 +129,7 @@ comparison_grob <- function(comparison, ...){
   if (!is.comparison(comparison)) stop("A comparison object is required")
   grob_list <- gList()
   if (nrow(comparison) < 1) return(grob_list)
+  # go in the reverse order to plot strongest comparison last
   for (i in 1:nrow(comparison)){
     grob_list[[i]] <- similarity_grob(comparison[i,], ...)
   }

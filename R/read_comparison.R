@@ -19,7 +19,7 @@ read_comparison_from_blast <- function(file, sort_by="per_id",
     if (!is.numeric(table[[sort_by]]))
       stop("Argument sort_by must designate a numeric column")
     decr <-
-      if (sort_by %in% c("per_id", "aln_len", "bit_score")) TRUE else FALSE
+      if (sort_by %in% c("per_id", "aln_len", "bit_score")) FALSE else TRUE
     # reorder from weakest to strongest
     table <- table[order(table[[sort_by]], decreasing=decr),]
   }

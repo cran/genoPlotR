@@ -71,23 +71,25 @@ human_nt <- function(nt, signif=FALSE){
 calc_comp_coor <- function(gap, xlim, comp, side){
   if (length(gap) != nrow(xlim))
     stop("gap should have the same length as xlim")
-  if (side < 1 && side > 2) stop("side should be 1 or 2")
+  if (side < 1 || side > 2) stop("side should be 1 or 2")
   # x is the moving cursor
   x <- 0
-  start <- if (side==1) comp$start1 else comp$start2 
-  end <- if (side==1) comp$end1 else comp$end2
+  old_start <- if (side==1) comp$start1 else comp$start2 
+  old_end <- if (side==1) comp$end1 else comp$end2
+  start <- old_start
+  end <- old_end
   for (i in 1:nrow(xlim)){
     # increment by the gap length
     x <- x + gap[i]
     # select comps
-    idx <- start >= xlim$x0[i] & end <= xlim$x1[i]
+    idx <- old_start >= xlim$x0[i] & old_end <= xlim$x1[i]
     # re-number by substracting the xlim and adding x
     if (xlim$strand[i] == 1){
-      start[idx] <- start[idx] - xlim$x0[i] + x
-      end[idx] <- end[idx] - xlim$x0[i] + x
+      start[idx] <- old_start[idx] - xlim$x0[i] + x
+      end[idx] <- old_end[idx] - xlim$x0[i] + x
     } else {
-      start[idx] <- xlim$x1[i] - start[idx] + x
-      end[idx] <- xlim$x1[i] - end[idx] + x
+      start[idx] <- xlim$x1[i] - old_start[idx] + x
+      end[idx] <- xlim$x1[i] - old_end[idx] + x
     }
     # increment x by the length of the segment
     x <- x + xlim$length[i]
