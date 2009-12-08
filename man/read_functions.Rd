@@ -107,66 +107,53 @@ read_mauve_backbone(file, ref = 1, gene_type = "side_blocks",
   example, the color, line width and type, pch and/or cex. See
   \code{\link{dna_seg}} for more information. An example:
 
-  \code{
-    name    start   end     strand  col  
-    feat1A  2       1345    1       blue
-    feat1B  1399    2034    1       red
-    feat1C  2101    2932    -1      grey
-    feat1D  2800    3120    1       green
+  \tabular{lllll}{
+    name   \tab start \tab end   \tab strand \tab col   \cr
+    feat1A \tab 2     \tab 1345  \tab 1      \tab blue  \cr
+    feat1B \tab 1399  \tab 2034  \tab 1      \tab red   \cr
+    feat1C \tab 2101  \tab 2932  \tab -1     \tab grey  \cr
+    feat1D \tab 2800  \tab 3120  \tab 1      \tab green \cr
   }
 
   Embl and Genbank files are two commonly used file types. These file types
   often contain a great variety of information. To properly extract data from
   these files, the user has to choose which features to extract. Commonly 'CDS'
-  features are of interest, but other feature tags such as 'gene' or 'misc_feature'
-  may be of interest. Should a feature contain an inner "pseudo" tag indicating this
-  CDS or gene is a pseudo gene, this will be presented as a 'CDS_pseudo' or a 'gene_pseudo'
-  feature type respectively in the resulting table. Certain constraints apply to these
-  file types, of which some are: embl files must contain one and only one ID tag;
-  genbank files may only contain one and only one locus tag.
+  features are of interest, but other feature tags such as 'gene' or
+  'misc_feature'  may be of interest. Should a feature contain an inner
+  "pseudo" tag indicating this CDS or gene is a pseudo gene, this will
+  be presented as a 'CDS_pseudo' or a 'gene_pseudo' feature type
+  respectively in the resulting table. Certain constraints apply to
+  these file types, of which some are: embl files must contain one and
+  only one ID tag; genbank files may only contain one and only one locus tag.
 
   Ptt (or protein table) files are a tabular format giving a bunch of
   information on each protein of a genome (or plasmid, or virus,
   etc). They are available for each published genome on the NCBI ftp
   site (ftp://ftp.ncbi.nlm.nih.gov/genomes/). As an example, look at
-  ftp://ftp.ncbi.nlm.nih.gov/genomes/Bacteria/Bartonella_henselae_Houston-1/NC_005956.ptt. 
+  ftp://ftp.ncbi.nlm.nih.gov/genomes/Bacteria/Bartonella_henselae_Houston-1/NC_005956.ptt.
   
   Tabular comparison files should have at least the following
   columns: start1, end1, start2, end2. If no header is specified, the
   fifth column is parsed as the color.
 
   \tabular{lllll}{
-    start1 \tab end1   \tab start2 \tab end2  \tab  col\cr
-    2      \tab 1345   \tab 10     \tab 1210  \tab  red\cr
-    1399   \tab 2034   \tab 2700   \tab 1100  \tab  blue\cr
-    500    \tab 800    \tab 3000   \tab 2500  \tab  blue\cr
+    start1 \tab end1   \tab start2 \tab end2  \tab  col  \cr
+    2      \tab 1345   \tab 10     \tab 1210  \tab  red  \cr
+    1399   \tab 2034   \tab 2700   \tab 1100  \tab  blue \cr
+    500    \tab 800    \tab 3000   \tab 2500  \tab  blue \cr
   }
 
   BLAST tabular result files are produced either with blastall using -m8
   or -m9 parameter, or with any of the newer
   blastn/blastp/blastx/tblastx using -outfmt 6 or -outfmt 7.
 
-  For both comparison functions, several further arguments can be passed
-  to the generic reading functions:
-  \itemize{
-    \item{color_scheme}{
-      Passed to \code{\link{apply_color_scheme}}. See this function for
-      supported values. Default to \code{NULL}.
-    }
-    \item{filt_low}{
-      Filter low comparison values. Only similarities whose values in
-      the \code{color_from} (for BLAST files) or \code{col} columns are
-      greater than \code{filt_low} will be considered.
-    }
-    \item{filt_len}{
-      Filter comparisons by length. Comparisons whose average length is
-      below \code{filt_len} are not considered. 
-    }
-    \item{reverse}{
-      If numeric and > 0, the comparison is passed to
-      \code{\link{reverse.comparison}}.
-    } 
-  }
+  In the subsequent \code{plot_gene_map}, the comparisons are drawn in
+  the order of the \code{comparison} object, i.e. the last rows of the
+  comparison object are on the top in the plot. For comparisons read
+  from BLAST output, the order can be modified by using the argument
+  \code{sort_by}. In any case, the order of plotting can be modified by
+  modifying the order of rows in the \code{comparison} object prior to
+  plotting. 
   
   Mauve backbone is another tabular data file that summarizes the blocks
   that are similar between all compared genomes. Each genome gets two

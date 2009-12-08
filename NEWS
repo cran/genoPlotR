@@ -1,0 +1,45 @@
+genoPlotR changes
+=================
+
+0.5   - 2010-06-14
+------------------
+NEW FEATURES:
+- New argument to plot_gene_map: n_scale_ticks, gives the approx. number of 
+  ticks in the dna_seg_scales
+- New argument to plot_gene_map: scale_cex, allows to change the size
+  of the labels in dna_seg_scales
+- New argument to plot_gene_map: dna_seg_label_cex, allows to change the 
+  size of the labels in the tree or dna_seg_labels
+
+
+0.4.1 - 2010-06-01
+------------------
+BUGFIX:
+- Added support for large phylogenetic trees. Given the mandatory use of
+  enum.phylog to permute the trees to fit the labels with the dna_seg labels,
+  big trees (requiring more than 1000 permutations) broke the program.
+  Now either the tree is permutable, in the right order, or an error is
+  thrown.
+
+0.4   - 2010-04-19 
+------------------
+NEW FEATURES:
+- Add the multisegment support
+- dna_scales, annotations on all the segments, 
+- Generated new examples. 
+
+0.3   - 2010-04-09
+------------------
+NEW FEATURES:
+- On plot_gene_maps, it is now possible to add automatic scale to any or 
+  all dna_segments.
+- It is possible (and recommended) to apply "global" color scheme at the 
+  time of plotting (and not when parsing comparisons).
+INTERNALS:
+- Application of color schemes is now more rational
+- Named every element and viewport, so its easier to navigate
+- Removed dependancies to RColorBrewer
+
+0.2   - 2010-01-11
+------------------
+Initial commit to R-Forge

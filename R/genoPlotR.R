@@ -21,11 +21,14 @@ plot_gene_map <- function(dna_segs,
                           main=NULL, # main title
                           main_pos="centre", # centre, left, right
                           dna_seg_labels=NULL,
+                          dna_seg_label_cex=1,
                           gene_type=NULL, # if not null, resets gene_type
                           arrow_head_len=200,
                           dna_seg_line=TRUE,
                           scale=TRUE,
                           dna_seg_scale=!scale,
+                          n_scale_ticks=7,
+                          scale_cex=0.6,
                           global_color_scheme=c("auto", "auto", "blue_red"),
                           override_color_schemes=FALSE,
                           plot_new=TRUE,
@@ -202,7 +205,7 @@ plot_gene_map <- function(dna_segs,
   # the dna_seg_scale, if needed. 1 null in between for comparisons
   # to rewrite sometimes
   h <- rep(1, n_rows)
-  h[seq(1, n_rows, by=2)] <- 1 + 0.5*dna_seg_scale + annot_h
+  h[seq(1, n_rows, by=2)] <- 1 + scale_cex*dna_seg_scale + annot_h
   dna_seg_heights <- unit(h, c(rep(c("lines", "null"), n_rows), "lines"))
   
   # deal with resetting symbols
@@ -281,7 +284,7 @@ plot_gene_map <- function(dna_segs,
                              sum(x$length) + (nrow(x)-1)*def_gap_length)
   longest_seg <- which.max(unpadded_lengths)
   max_length <- unpadded_lengths[longest_seg]
-  scale_unit <- diff(pretty(c(0, max_length), n=9)[1:2])
+  scale_unit <- diff(pretty(c(0, max_length), n=n_scale_ticks+2)[1:2])
   
   ### trim dna_segs ###
   # initiate new object: create subsegments by trimming original dna_seg
@@ -376,7 +379,7 @@ plot_gene_map <- function(dna_segs,
   #----------------------------------------------------------------------------#
   # collect grobs
   #----------------------------------------------------------------------------#
-  ### collect dna_seg grobs ###
+  ### collect dna_seg & dna_seg_scale grobs ###
   dna_seg_grobs <- list()
   dna_seg_scale_grobs <- list()
   for (i in 1:n_dna_segs){
@@ -392,7 +395,7 @@ plot_gene_map <- function(dna_segs,
       dna_seg_scale_grobs[[i]][[j]] <-
         if (dna_seg_scale[[i]])
           dna_seg_scale_grob(range=xlims[[i]][j,c("x0","x1")],
-                             unit=scale_unit, i=i, j=j)
+                             cex=scale_cex, unit=scale_unit, i=i, j=j)
         else NULL
     }
   }
@@ -451,12 +454,13 @@ plot_gene_map <- function(dna_segs,
     # check that a nice permutation is OK, return ys
     y <- permute_tree(tree, dna_seg_labels)
     # feed tree grob with permutation transformed as y coords
-    tree_grob <- phylog_grob(tree, 1-((y-1)/(n_dna_segs-1)))
+    tree_grob <- phylog_grob(tree, 1-((y-1)/(n_dna_segs-1)),
+                             clabel.leaves=dna_seg_label_cex)
     #tree_w <- unit(0.20, "npc")
     tree_w <- unit(0.1, "npc") + tree_grob$width
   } else if(!is.null(dna_seg_labels)){
     # just labels
-    tree_grob <- dna_seg_label_grob(dna_seg_labels)
+    tree_grob <- dna_seg_label_grob(dna_seg_labels, cex=dna_seg_label_cex)
     tree_w <- tree_grob$width
   } else {
     # nothing
@@ -505,7 +509,7 @@ plot_gene_map <- function(dna_segs,
   if (!is.null(tree_grob)){
     # make a supplementary 1/2 line margin if there is a scale in the last
     # dna_seg to get labels facing the text. Hack.
-    bot_margin <- 0.5 * dna_seg_scale[[n_dna_segs]]
+    bot_margin <- scale_cex * dna_seg_scale[[n_dna_segs]]
     # do the same if there is a annotation in the first dna_seg
     top_margin <- if (is.null(annotations[[1]])) 0 else annotation_height
     #bot_margin <- 1
@@ -539,8 +543,8 @@ plot_gene_map <- function(dna_segs,
     widths[1:n_dna_subsegs*2] <- xlims[[i]]$length
     widths[1:n_dna_subsegs*2-1] <- offsets[[i]]
     widths_units <- unit(widths, rep("native", n_cols))
-    heights <- unit(c(annot_h[i], 1, 0.5*dna_seg_scale[i]),
-                    c("lines", rep("null", 2)))
+    heights <- unit(c(annot_h[i], 1, scale_cex*dna_seg_scale[i]),
+                    c("lines", "null", "lines"))
     # push dna_seg grid (subsegments in cols, annotations, genes and
     # scales in rows)
     pushViewport(viewport(layout.pos.row=2*i-1,

@@ -25,11 +25,14 @@ plot_gene_map(dna_segs,
               main = NULL, 
               main_pos = "centre", 
               dna_seg_labels = NULL, 
+              dna_seg_label_cex=1,
               gene_type = NULL,
               arrow_head_len = 200,
               dna_seg_line = TRUE,
               scale = TRUE, 
               dna_seg_scale = !scale,
+              n_scale_ticks=7,
+              scale_cex=0.6,
               global_color_scheme = c("auto", "auto", "blue_red"),
               override_color_schemes = FALSE,
               plot_new=TRUE,
@@ -45,9 +48,8 @@ plot_gene_map(dna_segs,
   }
   \item{tree}{
     A tree, under the form of a \code{\link[ade4]{phylog}} object. If
-    specified, takes place at the left of the tags. The tree doesn't
-    need to be ordered as the \code{dna_seg_labels}, but a permutation
-    of the tree with that order should exist.
+    specified, takes place at the left of the tags. See details below
+    for more information.
   }
   \item{tree_width}{
     Numeric. The width of the tree area in the plot, in inches. By
@@ -103,6 +105,10 @@ plot_gene_map(dna_segs,
     given, names must exist either in \code{dna_seg_labels} or in the
     names of \code{dna_segs}.
   }
+  \item{dna_seg_label_cex}{
+    A numeric. The character size for the DNA segments labels, or tree
+    labels. Default is 1.
+  }
   \item{gene_type}{
     A character. Describes the type of representation of genes or
     \code{dna_seg} elements. See details.
@@ -129,6 +135,13 @@ plot_gene_map(dna_segs,
     \code{dna_segs}. Should a scale be displayed below each or all dna
     segments, respectively. \code{!scale} by default. 
   }
+  \item{n_scale_ticks}{
+    A integer. The (approximate) number of ticks on the longest
+    segment. Default: 7. 
+  }
+  \item{scale_cex}{
+    A numeric. The character size for the scale labels. Default is 1.
+  }
   \item{global_color_scheme}{
     A character of length 3. If no \code{col} column is present on any
     comparison or is \code{override_color_schemes} is set, apply a
@@ -151,9 +164,15 @@ plot_gene_map(dna_segs,
 }
 \details{
   One line is plotted per \code{dna_seg}. Eventually, the space between
-  the lines will be filled with the \code{comparisons}. A phylogenetic
-  tree (a \code{phylog} object from package \code{ade4}) can be drawn at
-  the left of the plot.
+  the lines will be filled with the \code{comparisons}.
+
+  A phylogenetic tree (a \code{phylog} object from package \code{ade4})
+  can be drawn at the left of the plot. The tree doesn't need to be
+  ordered as the \code{dna_seg_labels}, but a permutation of the tree
+  with that order should exist. If the tree is large, the number of
+  permutations become too large, and the function will stop (>100000
+  permutations). The solution is then to provide segments that are
+  ordered in the same manner as the tree labels (or vice-versa).
 
   A scale, a main title and an annotation row at the top of the plot can
   also be added.
@@ -274,6 +293,11 @@ plot_gene_map(dna_segs=dna_segs, comparisons=comparisons,
 plot_gene_map(dna_segs=dna_segs, comparisons=comparisons,
               dna_seg_labels=c("Huey", "Dewey", "Louie"))
 
+## dna_seg_labels size
+plot_gene_map(dna_segs=dna_segs, comparisons=comparisons,
+              dna_seg_labels=c("Huey", "Dewey", "Louie"),
+              dna_seg_label_cex=2)
+
 ## dna_seg_line
 plot_gene_map(dna_segs=dna_segs, comparisons=comparisons,
               dna_seg_line=c("FALSE", "red", grey(0.6)))
@@ -309,6 +333,17 @@ plot_gene_map(barto$dna_segs, barto$comparisons, tree=tree,
 plot_gene_map(barto$dna_segs, barto$comparisons, tree=tree, xlims=xlims1,
               dna_seg_scale=c(TRUE, FALSE, FALSE, TRUE), scale=FALSE,
               global_color_scheme=c("e_value","auto","grey"))
+
+## Changing size and number of dna_seg_scale_labels
+plot_gene_map(barto$dna_segs, barto$comparisons, tree=tree, xlims=xlims1,
+              dna_seg_scale=TRUE, scale=FALSE,
+              n_scale_ticks=3, scale_cex=1)
+
+## Changing size of dna_seg_labels (tree, in that case)
+plot_gene_map(barto$dna_segs, barto$comparisons, tree=tree, xlims=xlims1,
+              dna_seg_scale=TRUE, scale=FALSE,
+              dna_seg_label_cex=1.7)
+
 
 ## Adding annotations for all genomes
 annots <- lapply(barto$dna_segs, function(x){

@@ -140,7 +140,13 @@ permute_tree <- function(tree, labels){
     if(length(idx) != 1) stop("Non-unique or non-matching labels")
     wanted_permut[i] <- idx
   }
-  permuts <- enum.phylog(tree)
+  if (identical(as.numeric(1:n), as.numeric(wanted_permut))){
+    res <- 1:n
+    names(res) <- labels
+    return(res)
+  }
+  permuts <- enum.phylog(tree, 100000)
+  if (is.null(permuts)) stop("Number of permutations too large, use a tree that has labels in the same order as dna_segs")
   equals <- apply(permuts, 1, function(x)
                   identical(as.numeric(x), as.numeric(wanted_permut)))
   if (!any(equals))

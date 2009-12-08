@@ -174,14 +174,14 @@ annotation_grob <- function(annotation, ...){
   grob_list
 }
 # create tree grob
-dna_seg_label_grob <- function(labels){
+dna_seg_label_grob <- function(labels, cex){
   n_label <- length(labels)
   y <- seq(1, 0, len=n_label)
   labelGrobs <- gList()
   for (i in 1:n_label) {
     labelGrobs[[i]] <-
       textGrob(x=0, y=y[i], name=paste("label", i, sep="."),
-               label=labels[i], just="left",
+               label=labels[i], just="left", gp=gpar(cex=cex),
                default.units="native")
   }
   width <- unit(1, "grobwidth", labelGrobs[[which.max(nchar(labels))]])
@@ -200,7 +200,7 @@ scale_grob <- function(max_length){
           )
 }
 # create dna_seg scale grob
-dna_seg_scale_grob <- function(range, unit, i, j){
+dna_seg_scale_grob <- function(range, cex=0.6, unit, i, j){
   range <- as.numeric(range)
   if (length(range) != 2 && !is.numeric(range))
     stop("range must be numeric and length 2")
@@ -214,7 +214,7 @@ dna_seg_scale_grob <- function(range, unit, i, j){
                      name=paste("dna_seg_scale", i, j, "lines", sep="."),
                      default.units="native"),
         textGrob(labels$text, x=ticks, y=0.5, hjust=-0.05,
-                 gp=gpar(col=grey(0.3), cex=0.6),
+                 gp=gpar(col=grey(0.3), cex=cex),
                  name=paste("dna_seg_scale", i, j, "labels", sep="."),
                  default.units="native")
         )
