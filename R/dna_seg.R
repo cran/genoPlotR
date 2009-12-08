@@ -34,6 +34,7 @@ as.dna_seg <- function(df, col="blue", lty=1, lwd=1, pch=8, cex=1,
     if (is.factor(df$name)) df$name <- as.character(df$name)
     if (is.factor(df$strand)) df$strand <- as.character(df$strand)
     if (is.factor(df$col)) df$col <- as.character(df$col)
+    if (is.factor(df$gene_type)) df$gene_type <- as.character(df$gene_type)
     # care for strand
     if (is.character(df$strand)) {
       df$strand[df$strand=="+"] <- 1
@@ -61,15 +62,15 @@ as.dna_seg <- function(df, col="blue", lty=1, lwd=1, pch=8, cex=1,
       stop("Non-numeric start or end")
     if (!all(is.numeric(c(df$lwd, df$lty, df$pch, df$cex))))
       stop("lwd, lty, pch and cex must be numeric")
-    if (!is.character(df$gene_type) || !all(gene_type %in% gene_types()))
-      stop(paste("gene_type muste be one of:",
+    if (!is.character(df$gene_type) || !all(df$gene_type %in% gene_types()))
+      stop(paste("gene_type must be a character vector, made of:",
                  paste(gene_types(), collapse=", ")))
   }
   else {
     stop("Unable to handle this format")
   }
   class(df) <- c("dna_seg", "data.frame")
-  df
+  return(df)
 }
 is.dna_seg <- function(dna_seg){
   inherits(dna_seg, "dna_seg")

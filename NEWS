@@ -1,6 +1,55 @@
 genoPlotR changes
 =================
 
+0.6 - 2011-03-16
+------------------
+NEW FEATURES:
+- Added transparency support in apply_color_scheme, which is applied by
+  default.
+- Added a function, artemisColors(), that returns the colors as in Artemis.
+- read_dna_seg_from_file can now read color or colour tags in genbank or embl
+  files.
+- Added experimental support for tree branches annotations.
+BUGFIX:
+- Further corrected a bug occuring when fixed_gap_length was set, and allowing
+  comparisons with 0 rows.
+- Fasta types were incorrectly guessed
+NOTE: some of the features have been released in an intermediate version 0.5.9
+
+0.5.8 - 2011-01-31
+------------------
+NEW FEATURE:
+- The plot area is now clipped, as a workaround to avoid comparisons that
+  are too large.
+BUGFIX:
+- Corrected a bug occuring when fixed_gap_length was set
+
+0.5.7 - 2010-12-16
+------------------
+BUGFIX:
+- Corrected as.dna_seg to prevent factors to slip in and fixed the gene_type
+  verification.
+NEW FEATURE:
+- Changing the color of the dna_labels is possible (not for trees yet)
+
+0.5.6 - 2010-10-04
+------------------
+BUGFIX:
+- Modified the feature parsing algorithm, features with an "_" inside (ex. 
+  misc_feature) were parsed incorrectly.
+
+0.5.5 - 2010-09-27
+------------------
+NEW FEATURES:
+- Added a new gene_type: lines (and the corresponding side_lines)
+- Improved the example for gene_type
+
+0.5.4 - 2010-09-15
+------------------
+BUGFIX:
+- Added some extra checks on mauve input data, and on dna_seg input data
+  to avoid mysterious error messages
+
 0.5.3 - 2010-09-08
 ------------------
 Article published in Bioinformatics, added a CITATION file.

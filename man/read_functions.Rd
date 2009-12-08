@@ -30,7 +30,8 @@ read_comparison_from_blast(file, sort_by = "per_id",
                            filt_length = NULL,
                            color_scheme = NULL, ...)
 read_mauve_backbone(file, ref = 1, gene_type = "side_blocks",
-                    header = TRUE, filter_low = 0, ...)
+                    header = TRUE, filter_low = 0,
+                    common_blocks_only = TRUE, ...)
 }
 \arguments{
   \item{file}{
@@ -101,6 +102,10 @@ read_mauve_backbone(file, ref = 1, gene_type = "side_blocks",
     A numeric. If larger than 0, all blocks smaller that this number
     will be filtered out. Defaults to 0.
   }
+  \item{common_blocks_only}{
+    A logical. If \code{TRUE} (by default), reads only common blocks
+    (core blocks).
+  }
 }
 \details{
   Tab files representing DNA segements should have at least the following
@@ -127,7 +132,9 @@ read_mauve_backbone(file, ref = 1, gene_type = "side_blocks",
   respectively in the resulting table. Certain constraints apply to
   these file types, of which some are: embl files must contain one and
   only one ID tag; genbank files may only contain one and only one locus
-  tag.
+  tag. In these two files, the following tags are parsed (in addition to
+  the regular name, start, end and strand): protein_id, product, color
+  (or colour).
 
   Fasta files are read as one gene, as long as there are nucleotides in
   the fasta file.

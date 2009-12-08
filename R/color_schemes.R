@@ -6,7 +6,7 @@
 # TRUE for, typically, e-values, gaps, mism, ... 190
 # FALSE for bit scores, per_id, aln_length
 apply_color_scheme <- function(x, direction=NULL, color_scheme="grey",
-                               decreasing=FALSE, rng=NULL){
+                               decreasing=FALSE, rng=NULL, transparency=0.5){
   # check arguments
   # if x is null and direction is not, get x to 1s (mainly for blue/red)
   if (is.null(x) && !is.null(direction)) {
@@ -14,6 +14,9 @@ apply_color_scheme <- function(x, direction=NULL, color_scheme="grey",
   }
   if (!is.numeric(x)) stop("Color column is not numeric")
   if (is.null(rng)) rng <- range(x)
+  if (!(is.logical(transparency) && !(transparency))
+      && !is.numeric(transparency))
+    stop ("transparency should be FALSE or numeric")
   col <- rep(grey(0.5), length(x))
   # red blue
   if (any(color_scheme %in% c("red_blue", "blue_red"))){
@@ -44,6 +47,15 @@ apply_color_scheme <- function(x, direction=NULL, color_scheme="grey",
     }
   else {
     stop("Color scheme name invalid, choose between red_blue or grey")
+  }
+  if (transparency && transparency != 1){
+    # Convert ratio into hexadecimal
+    if (transparency > 1 || transparency < 0)
+      stop("transparency should be between 0 and 1")
+    tpc <- floor(transparency*256)
+    tpc <- sprintf("%X", tpc)
+    if (nchar(tpc) == 1) tpc <- paste("0", tpc, sep="")
+    col <- paste(col, tpc, sep="")
   }
   col
 }

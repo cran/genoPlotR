@@ -7,7 +7,8 @@ phylog_grob <-
   function (x, y=NULL, f.phylog = 1, cleaves = 0, cnodes = 0, 
             labels.leaves = names(x$leaves), clabel.leaves = 1,
             labels.nodes = names(x$nodes), 
-            clabel.nodes = 0, sub = "", csub = 1.25, possub = "bottomleft", 
+            clabel.nodes = 0.8,
+            sub = "", csub = 1.25, possub = "bottomleft", 
             draw.box = FALSE, ...) 
 {
   if (!inherits(x, "phylog")) 
@@ -27,12 +28,9 @@ phylog_grob <-
   if (f.phylog > 0.95) 
     f.phylog <- 0.95
   maxx <- max(x$droot)
-# plot.default(0, 0, type = "n", xlab = "", ylab = "", xaxt = "n", 
-#     yaxt = "n", xlim = c(-maxx * 0.15, maxx/f.phylog), ylim = c(-0.05, 
-#         1), xaxs = "i", yaxs = "i", frame.plot = FALSE)
-  
   x.leaves <- x$droot[leaves.names]
   x.nodes <- x$droot[nodes.names]
+  annot_nodes <- grep("^[^I]", names(x.nodes), value=TRUE)
   if (!is.null(y)){
     # check that it is constrained between 0 and 1
     if (!all(range(y) %in% c(0,1)))
@@ -46,6 +44,7 @@ phylog_grob <-
   # prepare grobs
   labelGrobs <- gList()
   labelSegGrobs <- gList()
+  branchLabelGrobs <- gList()
   branchesGrobs <- gList()
   # leaves labels and segments leading to it
   if (clabel.leaves > 0) {
@@ -62,12 +61,12 @@ phylog_grob <-
   }
   yleaves <- y[1:leaves.number]
   xleaves <- xx[1:leaves.number]
-# if (cleaves > 0) {
-#     for (i in 1:leaves.number) {
-#         points(xx[i], y[i], pch = 21, bg = 1, cex = par("cex") * 
-#             cleaves)
-#     }
-# }
+  ## if (cleaves > 0) {
+  ##     for (i in 1:leaves.number) {
+  ##         points(xx[i], y[i], pch = 21, bg = 1, cex = par("cex") * 
+  ##             cleaves)
+  ##     }
+  ## }
   yn <- rep(0, nodes.number)
   names(yn) <- nodes.names
   y <- c(y, yn)
@@ -88,28 +87,41 @@ phylog_grob <-
     branchesGrobs[[i+length(x$parts)]] <-
       segmentsGrob(x1, y1, x2, y1, default.units="native",
                    name=paste("tree.branch.horiz.segment", i, sep="."))
-}
-# if (cnodes > 0) {
-#     for (i in nodes.names) {
-#         points(xx[i], y[i], pch = 21, bg = "white", cex = cnodes)
-#     }
-# }
-# if (clabel.nodes > 0) {
-#     scatterutil.eti(xx[names(x.nodes)], y[names(x.nodes)], 
-#         nodes.car, clabel.nodes)
-# }
+    idx_node_label <- names(x1) %in% annot_nodes
+    if (clabel.nodes > 0 && sum(idx_node_label) > 0) {
+      label <- names(x1)[idx_node_label]
+      label <- gsub("^X?([^_]+)(_[0-9]+)?$", "\\1", label, perl=TRUE)
+      branchLabelGrobs[[i]] <- 
+        textGrob(label=label,
+                 x=(x1[idx_node_label] + x2[idx_node_label])/2,
+                 y=unit(y1[idx_node_label], "native") + unit(0.5, "line"),
+                 gp=gpar(cex=clabel.nodes), default.units="native",
+                 name=paste("tree.branch.label", i, sep="."))
+        
+    }
+  }
+  ## if (cnodes > 0) {
+  ##     for (i in nodes.names) {
+  ##         points(xx[i], y[i], pch = 21, bg = "white", cex = cnodes)
+  ##     }
+  ## }
+  ## if (clabel.nodes > 0) {
+  ##     scatterutil.eti(xx[names(x.nodes)], y[names(x.nodes)], 
+  ##         nodes.car, clabel.nodes)
+  ## }
   x <- x.leaves
   y <- y[leaves.names]
   xbase <- xcar
-# if (csub > 0) 
-#     scatterutil.sub(sub, csub = csub, possub = possub)
-# if (draw.box) 
-#     box()
-# if (cleaves > 0) 
-#     points(xleaves, yleaves, pch = 21, bg = 1, cex = par("cex") * 
-#         cleaves)
+  ## if (csub > 0) 
+  ##     scatterutil.sub(sub, csub = csub, possub = possub)
+  ## if (draw.box) 
+  ##     box()
+  ## if (cleaves > 0) 
+  ##     points(xleaves, yleaves, pch = 21, bg = 1, cex = par("cex") * 
+  ##         cleaves)
   # creating gTree for branches
-  branchesTree <- gTree(children=gList(branchesGrobs, labelSegGrobs),
+  branchesTree <- gTree(children=gList(branchesGrobs, labelSegGrobs,
+                          branchLabelGrobs),
                         vp=viewport(xscale=c(0, xcar), yscale=c(0, 1),
                           name="tree.branches"),
                         name="tree.branchesTree")

@@ -33,6 +33,19 @@ gene_grob <- function(gene, head_len=200, i=0){
                           lwd=gene$lwd),
                         default.units="native")  
   }
+  # lines
+  else if (gene$gene_type == "lines" || gene$gene_type == "side_lines"){
+    x <- c(gene$start, gene$end)
+    if (gene$gene_type == "side_lines") {
+      y <- gene$strand/4 + 0.5
+    }
+    else {
+      y <- 0.5
+    }
+    grob <- segmentsGrob(x0=gene$start, y0=y, x1=gene$end, y1=y, name=name,
+                         gp=gpar(col=gene$col, lwd=gene$lwd, lty=gene$lty),
+                         default.units="native")
+  }
   # exons
   else if (gene$gene_type == "exons" || gene$gene_type == "side_exons"){
     if (gene$gene_type == "side_exons"){
@@ -180,14 +193,14 @@ annotation_grob <- function(annotation, ...){
   grob_list
 }
 # create tree grob
-dna_seg_label_grob <- function(labels, cex){
+dna_seg_label_grob <- function(labels, cex, col){
   n_label <- length(labels)
   y <- seq(1, 0, len=n_label)
   labelGrobs <- gList()
   for (i in 1:n_label) {
     labelGrobs[[i]] <-
       textGrob(x=0, y=y[i], name=paste("label", i, sep="."),
-               label=labels[i], just="left", gp=gpar(cex=cex),
+               label=labels[i], just="left", gp=gpar(cex=cex, col=col[i]),
                default.units="native")
   }
   width <- unit(1, "grobwidth", labelGrobs[[which.max(nchar(labels))]])

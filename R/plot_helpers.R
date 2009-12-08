@@ -104,3 +104,38 @@ middle <- function(dna_seg){
   if (!is.dna_seg(dna_seg)) stop("argument should be a dna_seg object")
   apply(dna_seg[,c("start", "end")], 1, mean)
 }
+## Emulate artemis colors
+## 0  white          (RGB values: 255 255 255)
+## 1  dark grey      (RGB values: 100 100 100)
+## 2  red            (RGB values: 255   0   0)
+## 3  green          (RGB values:   0 255   0)
+## 4  blue           (RGB values:   0   0 255)
+## 5  cyan           (RGB values:   0 255 255)
+## 6  magenta        (RGB values: 255   0 255)
+## 7  yellow         (RGB values: 255 255   0)
+## 8  pale green     (RGB values: 152 251 152)
+## 9  light sky blue (RGB values: 135 206 250)
+## 10 orange         (RGB values: 255 165   0)
+## 11 brown          (RGB values: 200 150 100)
+## 12 pale pink      (RGB values: 255 200 200)
+## 13 light grey     (RGB values: 170 170 170)
+## 14 black          (RGB values:   0   0   0)
+## 15 mid red:       (RGB values: 255  63  63)
+## 16 light red      (RGB values: 255 127 127)
+## 17 pink           (RGB values: 255 191 191)
+artemisColors <- function(){
+  names <- c("white", "dark grey", "red", "green",
+             "blue", "cyan", "magenta", "yellow", "pale green",
+             "light sky blue", "orange", "brown", "pale pink",
+             "light grey", "black", "mid red", "light red", "pink")
+  numbers <- 0:(length(names)-1)
+  r <- c(255, 100, 255, 0, 0, 0, 255, 255, 152, 135, 255, 200, 255,
+         170, 0, 255, 255, 255)
+  g <- c(255, 100, 0, 255, 0, 255, 0, 255, 251, 206, 165, 150, 200,
+         170, 0, 63, 127, 191)
+  b <- c(255, 100, 0, 0, 255, 255, 255, 0, 152, 250, 0, 100, 200,
+         170, 0, 63, 127, 191)
+  colors <- rgb(r, g, b, maxColorValue=255)
+  data.frame(n=numbers, names=names, colors=colors, r=r, g=g, b=b,
+             stringsAsFactors=FALSE)
+}

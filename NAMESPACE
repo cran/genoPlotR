@@ -32,6 +32,8 @@ export(
   human_nt,
   apply_color_scheme,
   middle,
+
+  artemisColors,
   
   trim,
   reverse

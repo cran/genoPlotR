@@ -11,6 +11,7 @@ minimize_comps <- function(comparisons, xlims, lengths, prel_offsets,
     mean_w_gaps(c(first_offset, fixed_offsets), ...)
   }
   mean_w_gaps <- function(offsets, offsets_ref, xlim, xlim_ref, comp, side_ref){
+    if (nrow(comp) == 0) return(0)
     side_test <- if (side_ref == 2) 1 else 2
     # recalc for ref side
     comp <- calc_comp_coor(gap=offsets_ref, xlim=xlim_ref, comp=comp,
@@ -37,7 +38,7 @@ minimize_comps <- function(comparisons, xlims, lengths, prel_offsets,
       # optimise
       # if fixed_gap_length, optimse only on the first gap
       if (fixed_gap_length && length(offsets[[i]]) > 1){
-        fixed_offsets <- offsets[[i]][2:length(offsets[[1]])]
+        fixed_offsets <- offsets[[i]][2:length(offsets[[i]])]
         opt <- optim(par=offsets[[i]][1], fn=mean_w_fixed_gaps,
                      method="L-BFGS-B",
                      lower=offsets[[i]][1],
@@ -62,13 +63,27 @@ minimize_comps <- function(comparisons, xlims, lengths, prel_offsets,
   if (idx_ref < n_org){
     for (i in idx_ref:(n_org-1)){
       # optimise
-      opt <- optim(par=offsets[[i+1]], fn=mean_w_gaps, method="L-BFGS-B",
-                   lower=offsets[[i+1]],
-                   ## upper=rep(max_len-lengths[i+1], length(offsets[[i+1]])),
-                   offsets_ref=offsets[[i]],
-                   xlim=xlims[[i+1]], xlim_ref=xlims[[i]],
-                   comp=comparisons[[i]], side_ref=1)
-      offsets[[i+1]] <- opt$par
+      # if fixed_gap_length, optimse only on the first gap
+      if (fixed_gap_length && length(offsets[[i]]) > 1){
+        fixed_offsets <- offsets[[i]][2:length(offsets[[i]])]
+        opt <- optim(par=offsets[[i+1]][1], fn=mean_w_fixed_gaps,
+                     method="L-BFGS-B",
+                     lower=offsets[[i+1]][1],
+                     fixed_offsets=fixed_offsets, offsets_ref=offsets[[i]],
+                     xlim=xlims[[i+1]], xlim_ref=xlims[[i]],
+                     comp=comparisons[[i]], side_ref=1)
+        offsets[[i+1]][1] <- opt$par
+      }
+      # else optimise on all offsets
+      else {
+        opt <- optim(par=offsets[[i+1]], fn=mean_w_gaps,
+                     method="L-BFGS-B",
+                     lower=offsets[[i+1]],
+                     offsets_ref=offsets[[i]],
+                     xlim=xlims[[i+1]], xlim_ref=xlims[[i]],
+                     comp=comparisons[[i]], side_ref=1)
+        offsets[[i+1]] <- opt$par
+      }
     }
   }
   offsets

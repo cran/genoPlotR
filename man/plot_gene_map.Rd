@@ -15,6 +15,7 @@ plot_gene_map(dna_segs,
               comparisons = NULL,
               tree = NULL,
               tree_width = NULL,
+              tree_branch_labels_cex = NULL,
               legend = NULL, 
               annotations = NULL, 
               annotation_height = 1, 
@@ -28,6 +29,7 @@ plot_gene_map(dna_segs,
               main_pos = "centre", 
               dna_seg_labels = NULL, 
               dna_seg_label_cex=1,
+              dna_seg_label_col="black",
               gene_type = NULL,
               arrow_head_len = 200,
               dna_seg_line = TRUE,
@@ -35,7 +37,7 @@ plot_gene_map(dna_segs,
               dna_seg_scale = !scale,
               n_scale_ticks=7,
               scale_cex=0.6,
-              global_color_scheme = c("auto", "auto", "blue_red"),
+              global_color_scheme = c("auto", "auto", "blue_red", 0.5),
               override_color_schemes = FALSE,
               plot_new=TRUE,
               debug = 0
@@ -56,6 +58,11 @@ plot_gene_map(dna_segs,
   \item{tree_width}{
     Numeric. The width of the tree area in the plot, in inches. By
     default, takes 20 percent of the total plot.
+  }
+  \item{tree_branch_labels_cex}{
+    Numeric or \code{NULL} (default). If the tree provided contains
+    node annotations, they will be displayed with this \code{cex}. If
+    equal to 0, node annotations are not displayed.
   }
   \item{legend}{
     Yet unimplemented.
@@ -120,6 +127,10 @@ plot_gene_map(dna_segs,
     A numeric. The character size for the DNA segments labels, or tree
     labels. Default is 1.
   }
+  \item{dna_seg_label_col}{
+    A color, of length 1 or of the same length as \code{dna_segs}. Gives
+    the color of the labels. Default is black.
+  }
   \item{gene_type}{
     A character. Describes the type of representation of genes or
     \code{dna_seg} elements. See details.
@@ -154,7 +165,7 @@ plot_gene_map(dna_segs,
     A numeric. The character size for the scale labels. Default is 1.
   }
   \item{global_color_scheme}{
-    A character of length 3. If no \code{col} column is present on any
+    A character of length 4. If no \code{col} column is present on any
     comparison or is \code{override_color_schemes} is set, apply a
     global color scheme over all comparions. See below for more details.
     \code{c("auto", "auto", "blue_red")} by default. 
@@ -185,6 +196,12 @@ plot_gene_map(dna_segs,
   permutations). The solution is then to provide segments that are
   ordered in the same manner as the tree labels (or vice-versa).
 
+  There is an (experimental) support for branch annotations. These are
+  given in the Newick tree, directly after the parenthesis closing a
+  node. They can be characters or integers, but so far
+  \code{newick2phylog} doesn't support decimal values. Tags will be
+  ignored if they start with "I", and trimmed if they start with "X".
+
   A scale, a main title and an annotation row at the top of the plot can
   also be added.
 
@@ -212,11 +229,12 @@ plot_gene_map(dna_segs,
   every segment. \code{c(TRUE, FALSE, TRUE)} will add scales to the
   first and third segments.
 
-  The three elements of \code{global_color_scheme} are (i) which column
+  The four elements of \code{global_color_scheme} are (i) which column
   serves as scale to apply the color  scheme, or "auto" (default);
   (ii) if the scale is "increasing" or "decreasing" (see
   \code{apply_color_scheme} for more details), or "auto" (default);
-  (iii) the color scheme to apply.
+  (iii) the color scheme to apply; (iv) the transparency to apply (0.5
+  by default).
 }
 \value{
   %% Change this when/if would return gTree
@@ -257,10 +275,17 @@ names(dna_segs) <- names
 tree <- newick2phylog("(((A_aaa:4.2,B_bbb:3.9):3.1,C_ccc:7.3):1);")
 plot_gene_map(dna_segs=dna_segs, comparisons=comparisons,
               tree=tree)
-
 ## Increasing tree width
 plot_gene_map(dna_segs=dna_segs, comparisons=comparisons,
               tree=tree, tree_width=3)
+## Annotations on the tree
+tree2 <- newick2phylog("(((A_aaa:4.2,B_bbb:3.9)97:3.1,C_ccc:7.3)78:1);")
+plot_gene_map(dna_segs=dna_segs, comparisons=comparisons,
+              tree=tree2, tree_width=3)
+plot_gene_map(dna_segs=dna_segs, comparisons=comparisons,
+              tree=tree2, tree_width=3, tree_branch_labels_cex=0.5)
+plot_gene_map(dna_segs=dna_segs, comparisons=comparisons,
+              tree=tree2, tree_width=3, tree_branch_labels_cex=0)
 
 ## Annotation
 ## Calculating middle positions
@@ -343,7 +368,7 @@ plot_gene_map(barto$dna_segs, barto$comparisons, tree=tree,
 ## dna_seg_scale & global_color_scheme
 plot_gene_map(barto$dna_segs, barto$comparisons, tree=tree, xlims=xlims1,
               dna_seg_scale=c(TRUE, FALSE, FALSE, TRUE), scale=FALSE,
-              global_color_scheme=c("e_value","auto","grey"))
+              global_color_scheme=c("e_value", "auto", "grey", "0.7"))
 
 ## Changing size and number of dna_seg_scale_labels
 plot_gene_map(barto$dna_segs, barto$comparisons, tree=tree, xlims=xlims1,
@@ -354,6 +379,11 @@ plot_gene_map(barto$dna_segs, barto$comparisons, tree=tree, xlims=xlims1,
 plot_gene_map(barto$dna_segs, barto$comparisons, tree=tree, xlims=xlims1,
               dna_seg_scale=TRUE, scale=FALSE,
               dna_seg_label_cex=1.7)
+
+## Changing colors of dna_seg_labels
+plot_gene_map(barto$dna_segs, barto$comparisons, xlims=xlims1,
+              dna_seg_scale=TRUE, scale=FALSE,
+              dna_seg_label_col=c("black", "grey", "blue", "red"))
 
 
 ## Adding annotations for all genomes

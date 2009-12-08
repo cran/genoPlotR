@@ -2,7 +2,8 @@
 # File reading functions: read mauve backbone
 ################################################################################
 read_mauve_backbone <- function(file, ref=1, gene_type="side_blocks",
-                                header=TRUE, filter_low=0, ...){
+                                header=TRUE, filter_low=0,
+                                common_blocks_only=TRUE, ...){
   blocks <- read.table(file, stringsAsFactors=FALSE, header=header)
   n_orgs <- ncol(blocks)/2
   n_blocks <- nrow(blocks)
@@ -14,15 +15,21 @@ read_mauve_backbone <- function(file, ref=1, gene_type="side_blocks",
       stop("Not all rows in ref columns are positive. Contact author.")
   blocks <- blocks[order(blocks[,ref*2]),]
   # filter, if needed
-  if (is.numeric(filter_low) && filter_low > 1){
-    sizes <- matrix(NA, nrow=n_blocks, ncol=n_orgs)
-    for (i in 1:n_orgs){
-      sizes[,i] <- abs(blocks[,2*i]) - abs(blocks[,2*i-1])
-    }
-    min_sizes <- apply(sizes, 1, min, na.rm=TRUE)
-    blocks <- blocks[min_sizes >= filter_low,]
-    n_blocks <- nrow(blocks)
+  sizes <- matrix(NA, nrow=n_blocks, ncol=n_orgs)
+  for (i in 1:n_orgs){
+    sizes[,i] <- abs(blocks[,2*i]) - abs(blocks[,2*i-1])
   }
+  min_sizes <- apply(sizes, 1, min, na.rm=TRUE)
+  rows_to_keep <- rep(TRUE, n_blocks)
+  if (common_blocks_only){
+    rows_to_keep <- (min_sizes > 0)
+  }
+  if (is.numeric(filter_low) && filter_low > 1){
+    rows_to_keep <- rows_to_keep & (min_sizes >= filter_low)
+  }
+  blocks <- blocks[rows_to_keep,]
+  n_blocks <- nrow(blocks)
+
   # check that there are rows remaining
   if (nrow(blocks) < 1){
     stop("No row left in data. Check data and/or lower filter_low argument")

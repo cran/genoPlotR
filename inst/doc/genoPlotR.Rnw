@@ -517,7 +517,7 @@ according to their lengths.
 <<ex3_plot>>=
 plot_gene_map(dna_segs=bbone$dna_segs, 
               comparisons=bbone$comparisons,
-              global_color_scheme=c("length", "increasing", "red_blue"),
+              global_color_scheme=c("length", "increasing", "red_blue", 0.7),
               override_color_schemes=TRUE)
 @
 \begin{center}

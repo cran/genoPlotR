@@ -11,6 +11,7 @@ plot_gene_map <- function(dna_segs,
                           comparisons=NULL,
                           tree=NULL,
                           tree_width=NULL, # in inches
+                          tree_branch_labels_cex=NULL,
                           legend=NULL, # unimplemented
                           annotations=NULL,
                           annotation_height=1, # height of annot line
@@ -22,18 +23,20 @@ plot_gene_map <- function(dna_segs,
                           limit_to_longest_dna_seg=TRUE,
                           main=NULL, # main title
                           main_pos="centre", # centre, left, right
-                          dna_seg_labels=NULL,
-                          dna_seg_label_cex=1,
+                          dna_seg_labels=NULL, # labels on dna_segs
+                          dna_seg_label_cex=1, # size of these
+                          dna_seg_label_col="black", # color of these
                           gene_type=NULL, # if not null, resets gene_type
-                          arrow_head_len=200,
-                          dna_seg_line=TRUE,
-                          scale=TRUE,
-                          dna_seg_scale=!scale,
-                          n_scale_ticks=7,
-                          scale_cex=0.6,
-                          global_color_scheme=c("auto", "auto", "blue_red"),
+                          arrow_head_len=200, # force arrow head length
+                          dna_seg_line=TRUE,  # draw a line on each dna_seg
+                          scale=TRUE,         # scale in the bottom right
+                          dna_seg_scale=!scale, # scale on each dna_seg
+                          n_scale_ticks=7,    # number of tick marks for these
+                          scale_cex=0.6,      # size of text on scale
+                          global_color_scheme=c("auto", "auto",
+                            "blue_red", 0.5),
                           override_color_schemes=FALSE,
-                          plot_new=TRUE,
+                          plot_new=TRUE, # FALSE to integrate on a bigger plot
                           debug=0){
   #----------------------------------------------------------------------------#
   # check arguments
@@ -63,6 +66,14 @@ plot_gene_map <- function(dna_segs,
   # check length of labels
   if (!is.null(dna_seg_labels) && !(length(dna_seg_labels) == n_dna_segs))
     stop("Argument dna_seg_labels doesn't have the same length as dna_segs")
+
+  # check dna_seg_label colors
+  if (length(dna_seg_label_col) == 1){
+    dna_seg_label_col <- rep(dna_seg_label_col, n_dna_segs)
+  }
+  else if (!length(dna_seg_label_col) == n_dna_segs){
+    stop("Length of argument dna_seg_label_col must be 1 or as dna_segs")
+  }
   
   # check tree
   if (!is.null(tree)){
@@ -77,6 +88,14 @@ plot_gene_map <- function(dna_segs,
       stop("Number of leaves in the tree not equal to number of dna segs")
     if (!all(dna_seg_labels %in% names(tree$leaves)))
       stop("Tree leaves not corresponding to dna_seg labels")
+    # check whether nodes have added labels
+    if (is.null(tree_branch_labels_cex)){
+      if (length(grep("^[^I]", names(tree$nodes)))) {
+        tree_branch_labels_cex <- 0.8
+      } else {
+        tree_branch_labels_cex <- 0
+      }
+    }
   }
 
   # check annotation
@@ -160,7 +179,7 @@ plot_gene_map <- function(dna_segs,
     dna_seg_line[dna_seg_line == "TRUE"] <- "black"
   }
   if (!is.character(dna_seg_line ))
-    stop("dna_seg_line should be eiher a logical or charcater giving color")
+    stop("dna_seg_line should be eiher a logical or character giving color")
   if (length(dna_seg_line) == 1){
     dna_seg_line <- rep(dna_seg_line, n_dna_segs)
   } else if (length(dna_seg_line) != n_dna_segs){
@@ -188,8 +207,8 @@ plot_gene_map <- function(dna_segs,
   }
 
   # check global_color_scheme
-  if (length(global_color_scheme) != 3)
-    stop ("global_color_scheme should be length 3")
+  if (length(global_color_scheme) != 4)
+    stop ("global_color_scheme should be length 4")
   # accepted values for second value
   glob_col_sch_2_vals <- c("increasing", "decreasing", "auto")
   if (length(grep(global_color_scheme[2], glob_col_sch_2_vals)) != 1){
@@ -269,7 +288,8 @@ plot_gene_map <- function(dna_segs,
                            direction=comparisons[[i]]$direction,
                            color_scheme=global_color_scheme[3],
                            decreasing=global_color_scheme[2],
-                           rng=range_col_from)
+                           rng=range_col_from,
+                           transparency=as.numeric(global_color_scheme[4]))
     }
   }
 
@@ -457,12 +477,14 @@ plot_gene_map <- function(dna_segs,
     y <- permute_tree(tree, dna_seg_labels)
     # feed tree grob with permutation transformed as y coords
     tree_grob <- phylog_grob(tree, 1-((y-1)/(n_dna_segs-1)),
-                             clabel.leaves=dna_seg_label_cex)
+                             clabel.leaves=dna_seg_label_cex,
+                             clabel.nodes=tree_branch_labels_cex)
     #tree_w <- unit(0.20, "npc")
     tree_w <- unit(0.1, "npc") + tree_grob$width
   } else if(!is.null(dna_seg_labels)){
     # just labels
-    tree_grob <- dna_seg_label_grob(dna_seg_labels, cex=dna_seg_label_cex)
+    tree_grob <- dna_seg_label_grob(dna_seg_labels, cex=dna_seg_label_cex,
+                                    col=dna_seg_label_col)
     tree_w <- tree_grob$width
   } else {
     # nothing
@@ -532,7 +554,7 @@ plot_gene_map <- function(dna_segs,
                         name="plotarea_outer"),
                viewport(width=unit(1, "npc")-unit(1, "lines"),
                         height=unit(1, "npc")-unit(0, "lines"),
-                        name="plotarea"))
+                        name="plotarea", clip="on"))
 
   # map grid
   pushViewport(viewport(layout=grid.layout(n_rows, 1,
