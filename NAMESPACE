@@ -1,0 +1,51 @@
+export(
+  plot_gene_map,
+
+  dna_seg,
+  is.dna_seg,
+  as.dna_seg,
+  c.dna_seg,
+  range.dna_seg,
+       
+  comparison,
+  is.comparison,
+  as.comparison,
+  range.comparison,
+  
+  annotation,
+  is.annotation,
+  as.annotation,
+  range.annotation,
+       
+  read_dna_seg_from_tab,
+  read_dna_seg_from_file,
+  read_dna_seg_from_embl,
+  read_dna_seg_from_genbank,
+  read_dna_seg_from_ptt,
+  read_comparison_from_tab,
+  read_comparison_from_blast,
+  read_mauve_backbone,
+
+  gene_types,
+  
+  human_nt,
+  apply_color_scheme,
+  middle,
+  
+  trim,
+  reverse
+)
+S3method(c, dna_seg)
+S3method(range, dna_seg)
+S3method(trim, dna_seg)
+S3method(reverse, dna_seg)
+
+S3method(range, comparison)
+S3method(trim, comparison)
+S3method(reverse, comparison)
+
+S3method(range, annotation)
+S3method(trim, annotation)
+
+S3method(trim, default)
+S3method(reverse, default)
