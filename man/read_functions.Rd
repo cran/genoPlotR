@@ -230,9 +230,12 @@ comparison2 <- read_comparison_from_tab(comparison2_file)
 ##
 ## Mauve backbone
 ##
-## File
+## File: this is only to retrieve the file from the genoPlotR
+## installation folder. 
 bbone_file <- system.file('extdata/barto.backbone', package = 'genoPlotR')
 ## Read backbone
+## To read your own backbone, run something like
+## bbone_file <- "/path/to/my/file.bbone"
 bbone <- read_mauve_backbone(bbone_file)
 names <- c("B_bacilliformis", "B_grahamii", "B_henselae", "B_quintana")
 names(bbone$dna_segs) <- names

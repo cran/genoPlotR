@@ -61,6 +61,25 @@ trim.comparison <- function(x, xlim1=c(-Inf, Inf), xlim2=c(-Inf, Inf), ...){
   if (!is.null(xlim1) && !is.null(xlim2)){
     if (!is.numeric(xlim1) || !is.numeric(xlim2)) stop("xlims must be numeric")
     if (length(xlim1) != 2 || length(xlim2) != 2) stop("xlims must be length 2")
+    ## testing to include overlapping comps
+    ## direction 1
+    comparison$start1[comparison$start1 < xlim1[1] &
+                      comparison$end1 > xlim1[1]] <- xlim1[1]
+    comparison$end1[comparison$start1 < xlim1[2] &
+                    comparison$end1 > xlim1[2]] <- xlim1[2]
+    comparison$start2[comparison$start2 < xlim2[1] &
+                      comparison$end2 > xlim2[1]] <- xlim2[1]
+    comparison$end2[comparison$start2 < xlim2[2] &
+                    comparison$end2 > xlim2[2]] <- xlim2[2]
+    ## direction -1
+    comparison$start1[comparison$start1 > xlim1[2] &
+                      comparison$end1 < xlim1[2]] <- xlim1[2]
+    comparison$end1[comparison$start1 > xlim1[1] &
+                    comparison$end1 < xlim1[1]] <- xlim1[1]
+    comparison$start2[comparison$start2 > xlim2[2] &
+                      comparison$end2 < xlim2[2]] <- xlim2[2]
+    comparison$end2[comparison$start2 > xlim2[1] &
+                    comparison$end2 < xlim2[1]] <- xlim2[1]
     comparison <-
       comparison[comparison$start1 >= xlim1[1] & comparison$end1 <= xlim1[2] &
                  comparison$start2 >= xlim2[1] & comparison$end2 <= xlim2[2],]

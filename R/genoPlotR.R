@@ -12,6 +12,7 @@ plot_gene_map <- function(dna_segs,
                           tree=NULL,
                           tree_width=NULL, # in inches
                           tree_branch_labels_cex=NULL,
+                          tree_scale=FALSE, # plot tree scale?
                           legend=NULL, # unimplemented
                           annotations=NULL,
                           annotation_height=1, # height of annot line
@@ -357,21 +358,35 @@ plot_gene_map <- function(dna_segs,
   ### trim comparisons ###
   if (n_comparisons > 0){
     for (i in 1:n_comparisons){
-      # trim from above first: make successive trims of the original comp
+      # concatenate all possible combinations
       comp1 <- comparisons[[i]][0,]
       for (j in 1:nrow(xlims[[i]])){
-        comp1 <- rbind(comp1, trim.comparison(comparisons[[i]],
-                                              xlim1=as.numeric(xlims[[i]][j,
-                                                c("x0", "x1")])))
+        for (k in 1:nrow(xlims[[i+1]])){
+          comp1 <-
+            rbind(comp1,
+                  trim.comparison(comparisons[[i]],
+                                  xlim1=as.numeric(xlims[[i]][j,
+                                    c("x0", "x1")]),
+                                  xlim2=as.numeric(xlims[[i+1]][k,
+                                    c("x0", "x1")])))
+        }
       }
-      # trim from below then: trim from the previously obtained comp
-      comp2 <- comparisons[[i]][0,]
-      for (j in 1:nrow(xlims[[i+1]])){
-        comp2 <- rbind(comp2, trim.comparison(comp1,
-                                              xlim2=as.numeric(xlims[[i+1]][j,
-                                                c("x0", "x1")])))
-      }
-      comparisons[[i]] <- comp2 
+      comparisons[[i]] <- comp1
+      ## # Trim from above first
+      ## comp1 <- comparisons[[i]][0,]
+      ## for (j in 1:nrow(xlims[[i]])){
+      ##   comp1 <- rbind(comp1, trim.comparison(comparisons[[i]],
+      ##                                         xlim1=as.numeric(xlims[[i]][j,
+      ##                                           c("x0", "x1")])))
+      ## }
+      ## # trim from below then: trim from the previously obtained comp
+      ## comp2 <- comparisons[[i]][0,]
+      ## for (j in 1:nrow(xlims[[i+1]])){
+      ##   comp2 <- rbind(comp2, trim.comparison(comp1,
+      ##                                         xlim2=as.numeric(xlims[[i+1]][j,
+      ##                                           c("x0", "x1")])))
+      ## }
+      ## comparisons[[i]] <- comp2
     }
   }
   
@@ -474,8 +489,8 @@ plot_gene_map <- function(dna_segs,
         seg_plot_grobs[[i]] <- NULL
       }
     }
-    seg_plot_ylims[[i]] <- if (is.null(seg_subplots[[i]]$ylim))
-      xl_sg else seg_subplots[[i]]$ylim
+    seg_plot_ylims[[i]] <- if (is.null(seg_plots[[i]]$ylim))
+      xl_sg else seg_plots[[i]]$ylim
   }
   ### collect seg_plot_yaxis_grobs
   seg_plot_yaxis_grobs <- list()
@@ -542,7 +557,8 @@ plot_gene_map <- function(dna_segs,
     # feed tree grob with permutation transformed as y coords
     tree_grob <- phylog_grob(tree, 1-((y-1)/(n_dna_segs-1)),
                              clabel.leaves=dna_seg_label_cex,
-                             clabel.nodes=tree_branch_labels_cex)
+                             clabel.nodes=tree_branch_labels_cex,
+                             tree.scale=tree_scale)
     #tree_w <- unit(0.20, "npc")
     tree_w <- unit(0.1, "npc") + tree_grob$width
   } else if(!is.null(dna_seg_labels)){
@@ -556,6 +572,8 @@ plot_gene_map <- function(dna_segs,
     tree_w <- unit(0, "npc")
   }
   if (!is.null(tree_width)) tree_w <- unit(tree_width, "inches")
+  # reset scale_h if tree_scale is true
+  if (tree_scale) scale_h <- 1
   
   #----------------------------------------------------------------------------#
   # plotting

@@ -216,12 +216,12 @@ dna_seg_label_grob <- function(labels, cex, col){
 }
 # create scale grob
 scale_grob <- function(max_length){
-    rng <- diff(pretty(c(0, max_length), n=8))[1]
-    gList(segmentsGrob(x0=max_length, y0=0, x1=max_length-rng, y1=0,
-                       name="scale.lines", default.units="native"),
-          textGrob(label=human_nt(rng)$text, x=max_length-rng/2, y=0.5,
-                   name="scale.text", default.units="native")
-          )
+  rng <- diff(pretty(c(0, max_length), n=8))[1]
+  gList(segmentsGrob(x0=max_length, y0=0, x1=max_length-rng, y1=0,
+                     name="scale.lines", default.units="native"),
+        textGrob(label=human_nt(rng)$text, x=max_length-rng/2, y=0.5,
+                 name="scale.text", default.units="native")
+        )
 }
 # create dna_seg scale grob
 dna_seg_scale_grob <- function(range, cex=0.6, unit, i, j){

@@ -9,6 +9,7 @@ phylog_grob <-
             labels.nodes = names(x$nodes), 
             clabel.nodes = 0.8,
             leave.seg.col = grey(0.7),
+            tree.scale = FALSE,
             sub = "", csub = 1.25, possub = "bottomleft", 
             draw.box = FALSE, ...) 
 {
@@ -101,6 +102,20 @@ phylog_grob <-
         
     }
   }
+  # scale
+  if (tree.scale){
+    rng <- diff(pretty(c(0, maxx), n=2))[1]
+    scaleGrob <- segmentsGrob(maxx, unit(-1.5, "lines"),
+                              maxx-rng,  unit(-1.5, "lines"),
+                              default.units="native",
+                              name=("tree.scale.seg"))
+    scaleLabelGrob <- textGrob(label=rng, x=maxx-(rng/2), y=unit(-1, "lines"),
+                               default.units="native",
+                               name=("tree.scale.label"))
+  } else {
+    scaleGrob <- nullGrob()
+    scaleLabelGrob <- nullGrob()
+  }
   ## if (cnodes > 0) {
   ##     for (i in nodes.names) {
   ##         points(xx[i], y[i], pch = 21, bg = "white", cex = cnodes)
@@ -122,7 +137,7 @@ phylog_grob <-
   ##         cleaves)
   # creating gTree for branches
   branchesTree <- gTree(children=gList(branchesGrobs, labelSegGrobs,
-                          branchLabelGrobs),
+                          branchLabelGrobs, scaleGrob, scaleLabelGrob),
                         vp=viewport(xscale=c(0, xcar), yscale=c(0, 1),
                           name="tree.branches"),
                         name="tree.branchesTree")

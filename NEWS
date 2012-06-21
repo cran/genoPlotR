@@ -1,6 +1,25 @@
 genoPlotR changes
 =================
 
+0.8 - 2012-06-21
+----------------
+NEW FEATURE:
+- Comparisons that overlap xlims are now included and trimmed inside 
+  xlims
+BUGFIXES:
+- Automatic horizontal placement of dna_segs had some error in certain
+  conditions
+- Reading artemis colors could not be overriden
+- Error handling when reading null tables
+
+0.7.1 - 2011-05-04
+------------------
+NEW FEATURE:
+- A scale can be added to the tree (argument tree_scale)
+BUGFIX:
+- Arguments ylim (of seg_plot objects) were not taken into account 
+  when plotting
+
 0.7 - 2011-04-18
 ----------------
 NEW FEATURES:

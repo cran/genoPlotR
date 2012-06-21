@@ -368,7 +368,7 @@ read_dna_seg_from_file <- function(file, tagsToParse=c("CDS"),
     # Check color
     # Eventually, change Artemis colors to their RGB equivalent
     artCol <- artemisColors()
-    if (all(color %in% c("NA", artCol$n))) {
+    if (length(color) > 0 && all(color %in% c("NA", artCol$n))) {
       for (i in 1:length(color)){
         if (color[i] != "NA") color[i] <- artCol$colors[artCol$n == color[i]]
       }
@@ -397,7 +397,8 @@ read_dna_seg_from_file <- function(file, tagsToParse=c("CDS"),
     }
     # SIMPLE ERROR HANDLING
     if (dim(table)[1] == 0)
-      stop("Nothing to return in table. I.e. no features extracted.")
+      return (NULL)
+      #stop("Nothing to return in table. I.e. no features extracted.")
     
     # Go to next function
     .read_dna_seg(table, seg_name, ...)

@@ -22,6 +22,7 @@ minimize_comps <- function(comparisons, xlims, lengths, prel_offsets,
     dists <- c(abs(comp$start1-comp$start2),
              abs(comp$end1-comp$end2))#[direction > 0]
     lengths <- abs(comp$end1-comp$start1) + abs(comp$end2-comp$start2)
+    lengths[lengths==0] <- 1
     weighted.mean(dists, c(lengths, lengths))
   }
   

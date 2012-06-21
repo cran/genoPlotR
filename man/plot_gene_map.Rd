@@ -16,6 +16,7 @@ plot_gene_map(dna_segs,
               tree = NULL,
               tree_width = NULL,
               tree_branch_labels_cex = NULL,
+              tree_scale = FALSE,
               legend = NULL, 
               annotations = NULL, 
               annotation_height = 1, 
@@ -68,6 +69,9 @@ plot_gene_map(dna_segs,
     Numeric or \code{NULL} (default). If the tree provided contains
     node annotations, they will be displayed with this \code{cex}. If
     equal to 0, node annotations are not displayed.
+  }
+  \item{tree_scale}{
+    Logical. Plot a scale for the tree? Default is FALSE.
   }
   \item{legend}{
     Yet unimplemented.
