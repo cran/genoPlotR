@@ -8,6 +8,8 @@
 apply_color_scheme <- function(x, direction=NULL, color_scheme="grey",
                                decreasing=FALSE, rng=NULL, transparency=0.5){
   # check arguments
+  # if length is 0, return length 0
+  if (!is.null(direction) && length(direction) == 0) return (character(0))
   # if x is null and direction is not, get x to 1s (mainly for blue/red)
   if (is.null(x) && !is.null(direction)) {
     x <- rep(1, length(direction))

@@ -399,6 +399,13 @@ xlims1 <- list(c(1380000, 1445000),
                c(10000, 83000),
                c(15000, 98000),
                c(5000, 82000))
+## Reducing dataset size for speed purpose
+for (i in 1:length(barto$dna_segs)){
+    barto$dna_segs[[i]] <- trim(barto$dna_segs[[i]], xlim=xlims1[[i]])
+    if (i < length(barto$dna_segs))
+        barto$comparisons[[i]] <- trim(barto$comparisons[[i]],
+                                      xlim1=xlims1[[i]], xlims1[[i+1]])   
+}
 plot_gene_map(barto$dna_segs, barto$comparisons, tree=tree,
               xlims=xlims1,
               dna_seg_scale=TRUE)
@@ -407,75 +414,29 @@ xlims2 <- list(c(1445000, 1415000, 1380000, 1412000),
                c(  10000,   45000,   50000,   83000, 90000, 120000),
                c(  15000,   36000,   90000,  120000, 74000,  98000),
                c(   5000,    82000))
-plot_gene_map(barto$dna_segs, barto$comparisons, tree=tree,
-              xlims=xlims2,
-              dna_seg_scale=TRUE)
 
-## dna_seg_scale & global_color_scheme
-plot_gene_map(barto$dna_segs, barto$comparisons, tree=tree, xlims=xlims1,
+## dna_seg_scale, global_color_scheme, size, number, color of dna_seg_scale,
+## size of dna_seg_scale labels
+plot_gene_map(barto$dna_segs, barto$comparisons, tree=tree, xlims=xlims2,
               dna_seg_scale=c(TRUE, FALSE, FALSE, TRUE), scale=FALSE,
-              global_color_scheme=c("e_value", "auto", "grey", "0.7"))
-
-## Changing size and number of dna_seg_scale_labels
-plot_gene_map(barto$dna_segs, barto$comparisons, tree=tree, xlims=xlims1,
-              dna_seg_scale=TRUE, scale=FALSE,
+              dna_seg_label_cex=1.7,
+              dna_seg_label_col=c("black", "grey", "blue", "red"),
+              global_color_scheme=c("e_value", "auto", "grey", "0.7"),
               n_scale_ticks=3, scale_cex=1)
 
-## Changing size of dna_seg_labels (tree, in that case)
-plot_gene_map(barto$dna_segs, barto$comparisons, tree=tree, xlims=xlims1,
-              dna_seg_scale=TRUE, scale=FALSE,
-              dna_seg_label_cex=1.7)
-
-## Changing colors of dna_seg_labels
-plot_gene_map(barto$dna_segs, barto$comparisons, xlims=xlims1,
-              dna_seg_scale=TRUE, scale=FALSE,
-              dna_seg_label_col=c("black", "grey", "blue", "red"))
-
-
-## Adding annotations for all genomes
-annots <- lapply(barto$dna_segs, function(x){
-  mid <- middle(x)
-  annot <- annotation(x1=mid, text=x$name, rot=30)
-  # removing gene names starting with "B" and keeping 1 in 4
-  idx <- grep("^[^B]", annot$text, perl=TRUE)
-  annot[idx[idx \%\% 4 == 0],] 
-})
-plot_gene_map(barto$dna_segs, barto$comparisons, tree=tree,
-              annotations=annots,
-              xlims=xlims2,
-              dna_seg_scale=TRUE)
-## Allow segments to be placed out of the longest segment
-plot_gene_map(barto$dna_segs, barto$comparisons, tree=tree,
-              annotations=annots,
-              xlims=xlims2,
-              limit_to_longest_dna_seg=FALSE,
-              dna_seg_scale=TRUE)
-## Hand-made offsets: only placement of first segment
-offsets1 <- c(10000, 0, 30000, 10000)
-plot_gene_map(barto$dna_segs, barto$comparisons, tree=tree,
-              annotations=annots,
-              xlims=xlims2,
-              offsets=offsets1,
-              dna_seg_scale=TRUE)
 ## Hand-made offsets: size of all gaps
 offsets2 <- list(c(10000, 10000),
                  c(2000, 2000, 2000),
                  c(10000, 5000, 2000),
                  c(10000))
 plot_gene_map(barto$dna_segs, barto$comparisons, tree=tree,
-              annotations=annots,
+              #annotations=annots,
               xlims=xlims2,
               offsets=offsets2,
               dna_seg_scale=TRUE)
-
 ##
-## Exploring and modifying a gene map plot
+## Exploring and modifying a previously plotted gene map plot
 ##
-plot_gene_map(barto$dna_segs, barto$comparisons, tree=tree,
-              annotations=annots,
-              xlims=xlims2,
-              offsets=offsets2,
-              dna_seg_scale=TRUE)
 ## View viewports
 current.vpTree()
 ## Go down to one of the viewports, add an xaxis, go back up to root viewport

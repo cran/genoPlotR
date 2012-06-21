@@ -306,9 +306,15 @@ plot_gene_map <- function(dna_segs,
       stop("Invalid value for global_color_scheme[2]")
     }
     # gather range of values from all comparisons
-    range_col_from <-
-      range(unlist(lapply(comparisons,
-                          function(x) range(x[[global_color_scheme[1]]]))))
+    range_col_from <- c(Inf, -Inf)
+    for (i in 1:n_comparisons){
+      if (nrow(comparisons[[i]]) > 0){
+        range_col_from[1] <- min(c(range_col_from[1],
+                                   comparisons[[i]][[global_color_scheme[1]]]))
+        range_col_from[2] <- max(c(range_col_from[2],
+                                   comparisons[[i]][[global_color_scheme[1]]]))
+      }
+    }
     # perform apply_color_scheme
     for (i in 1:n_comparisons){
       comparisons[[i]]$col <-
@@ -717,7 +723,6 @@ plot_gene_map <- function(dna_segs,
                           #clip="on",
                           xscale=c(0,max_length),
                           name=paste("scale_and_dna_seg", i, sep=".")))
-    #browser()
     for (j in 1:n_dna_subsegs){
       # calculate xscale
       idx <- if (xlims[[i]]$strand[j] == 1) c("x0", "x1") else c("x1", "x0")

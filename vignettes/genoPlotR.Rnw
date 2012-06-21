@@ -1,0 +1,836 @@
+\documentclass[a4paper]{article}
+\usepackage{url} % For \url{}
+%\VignetteIndexEntry{Getting started with genoPlotR}
+%\VignettePackage{genoPlotR}
+\newcommand{\code}[1]{\texttt{#1}}
+\newcommand{\pkg}[1]{{\normalfont\fontseries{b}\selectfont #1}}
+\newcommand{\genoPlotR}{\pkg{genoPlotR}}
+\newcommand{\R}{{\sffamily R}}
+
+\title{Getting started with \genoPlotR{}}
+\author{Lionel Guy}
+
+\begin{document}
+
+\maketitle
+
+\tableofcontents
+
+\section*{Introduction}
+
+The \genoPlotR{} package is intended to produce publication-grade graphics 
+of gene and genome maps. With the amazing speed of data production of new 
+DNA sequencing techniques and the increase in the number of software 
+available to compare these sequences, there is a great need to graphically 
+represent these sequences and their comparisons. A number of packages 
+already exist (Artemis, ACT, mauve), but none of them produces easily 
+reproducible, publication-grade graphics. The goal of this package is 
+to fill in that gap. 
+
+This document provides an introduction to \genoPlotR{}, providing the user 
+with examples of increasing complexity. It is not meant as a comprehensive
+guide to all the functions and options of the package, but rather as 
+a first approach to the package.
+
+To load the library in a R session, type:
+
+<<results=hide>>=
+library(genoPlotR)
+@ 
+\section{Quick start}
+
+Loading the simplest dataset, applying a color scheme and some limits to the 
+plotting aread, adding a tree and some annotations. For more details about
+that plot, refer to the first of the examples developed below.
+<<>>=
+data(three_genes)
+comparisons[[1]]$col <- apply_color_scheme(c(0.6, 0.4, 0.5), "grey")
+names <- c("Huey", "Dewey", "Louie")
+names(dna_segs) <- names
+tree <- newick2phylog("(((Huey:4.2,Dewey:3.9):3.1,Louie:7.3):1);")
+mid_pos <- middle(dna_segs[[1]])
+xlims <- list(c(Inf, -Inf), c(-Inf, Inf), c(1850, 2800))
+annot <- annotation(x1=c(mid_pos[1], dna_segs[[1]]$end[2]),
+                     x2=c(NA, dna_segs[[1]]$end[3]),
+                     text=c(dna_segs[[1]]$name[1], "region1"),
+                     rot=c(30, 0), col=c("blue", "black"))
+@
+
+Now plotting these three segments:
+
+<<quick_plot>>=
+plot_gene_map(dna_segs=dna_segs, comparisons=comparisons,
+              annotations=annot, annotation_height=1.3,
+              tree=tree, tree_width=2,
+              xlims=xlims,
+              main="Comparison of Huey, Dewey and Louie")
+
+@ 
+\begin{center}
+<<fig=TRUE, width=6, height=2.5, echo=FALSE, results=hide>>=
+<<quick_plot>>
+@ 
+\end{center}
+
+\section{Getting help}
+
+There are various ways to get help with \genoPlotR{}. First, you can start 
+the general help in a web browser, and then click on ``packages'' and 
+find \genoPlotR{} in the list. It will provide a list of the functions 
+available. The first link in the list leads to a very general description of
+the package.
+<<eval=FALSE, results=hide>>=
+help.start()
+@ 
+Another way of obtaining the list of functions present in the package is to run 
+<<eval=FALSE>>=
+library(help=genoPlotR)
+@ 
+A lot of examples and help are available in the main functions, i.e. the 
+reading functions (the various \code{read\_dna\_seg\_from}* and 
+\code{read\_comparison\_from}* functions) and the main plotting 
+function, \code{plot\_gene\_map}.
+<<eval=FALSE>>=
+help("read_functions")
+help("plot_gene_map")
+@ 
+Finally, the web page on R-forge (\url{http://genoplotr.r-forge.r-project.org/})
+provides ways to get in touch with the \genoPlotR{} community and to submit 
+bugs and feature requests.
+
+\section{Objects in \genoPlotR{}}
+
+This section will give an overview of the different types of \R{} objects in
+\genoPlotR{}.
+
+\subsection{\code{dna\_seg}}
+
+A \code{dna\_seg} object is a collection of genes or elements along a 
+genome, to be represented on a map. 
+
+\code{dna\_seg} objects need to have 4 columns, \code{name}, \code{start}, 
+\code{end} and \code{strand}. Extra columns with names \code{col}, 
+\code{lty}, \code{lwd}, \code{pch}, \code{cex}, \code{gene\_type} will 
+be used in the  plotting process. Other extra columns will be kept in 
+the object, but not used.
+
+<<>>=
+names1 <- c("feat1", "feat2", "feat3")
+starts1 <- c(2, 1000, 1050)
+ends1 <- c(600, 800, 1345)
+strands1 <- c("-", -1, 1)
+cols1 <- c("blue", "grey", "red")
+df1 <- data.frame(name=names1, start=starts1, end=ends1,
+                  strand=strands1, col=cols1)
+
+dna_seg1 <- dna_seg(df1)
+str(dna_seg1)
+@
+
+\subsection{\code{comparison}}
+
+A \code{comparison} is a collection of similarities, representing the
+comparison between two DNA segments. 
+
+Objects (either data frames or lists) should have at least named
+elements \code{start1}, \code{end1}, \code{start2} and \code{end2}. 
+In addition, it can use a \code{col}or column, that will give
+the color of each comparison. Additional numeric columns can be used 
+for automatic color-coding (via \code{apply\_color\_scheme}.
+
+<<>>=
+starts1 <- c(2, 1000, 1050)
+ends1 <- c(600, 800, 1345)
+starts2 <- c(50, 800, 1200)
+ends2 <- c(900, 1100, 1322)
+comparison1 <- as.comparison(data.frame(start1=starts1, end1=ends1,
+                                        start2=starts2, end2=ends2))
+str(comparison1)
+@ 
+
+\subsection{\code{annotation}}
+
+An \code{annotation} object is used to annotate a DNA segment. It has 
+labels attached to positions. Each label can be attached to a single 
+position or to a range. 
+
+<<>>=
+mid_pos <- middle(dna_segs[[1]])
+annot1 <- annotation(x1=mid_pos, text=dna_segs[[1]]$name)
+str(annot1)
+@ 
+
+\subsection{\code{tree}}
+
+A tree description in Newick format can ba parsed using \pkg{ade4} package.
+<<>>=
+tree <- newick2phylog("(((A_aaa:4.2,B_bbb:3.9):3.1,C_ccc:7.3):1);")
+str(tree$leaves)
+@ 
+
+\section{Reading data}
+
+\subsection{DNA segments}
+
+Several formats can be read by \genoPlotR{} to produce \code{dna\_seg} objects:
+\begin{itemize}
+  \item EMBL files (\code{read\_dna\_seg\_from\_embl})
+  \item Genbank files (\code{read\_dna\_seg\_from\_genbank})
+  \item PTT (protein table) files, tabular versions of Genbank 
+    files)(\code{read\_dna\_seg\_from\_ptt})
+  \item User generated tabular files (\code{read\_dna\_seg\_from\_ptt})
+\end{itemize}
+The function \code{read\_dna\_seg\_from\_file} is a wrapper function, that
+will attempt to guess the correct format of the file.
+
+The first three files are common biological formats and can be downloaded 
+from major databases, such as the NCBI (\url{http://www.ncbi.nlm.nih.gov/}) 
+and the EMBL (\url{http://www.ebi.ac.uk/embl/Access/index.html}). The 
+definition of EMBL and Genbank files can be found at 
+\url{http://www.ebi.ac.uk/embl/Documentation/FT_definitions/feature_table.html}.
+
+\subsection{Comparisons}
+
+\genoPlotR{} can read tabular files, either user-generated tab files 
+(\code{read\_comparison\_from\_tab}), or from BLAST output
+(\code{read\_comparison\_from\_blast}). To produce files that are readable by 
+\genoPlotR{}, the \code{-m 8} or \code{9} option should be used in 
+\code{blastall}, or \code{-outfmt 6} or {7} with the BLAST+ suite.
+
+\subsection{Mauve output}
+
+The backbone output of the Mauve genome aligner 
+(\url{http://asap.ahabs.wisc.edu/mauve/index.php}) can be parsed using 
+\code{read\_comparison\_from\_blast}\footnote{Tested with Mauve 2.3.1}.
+
+The function will return a list consisting of a list of \code{dna\_seg} objects 
+and the corresponding \code{comparisons}.
+
+\section{Plotting data}
+
+There is only one plotting function in \genoPlotR{}, \code{plot\_gene\_map}.
+Many arguments are available, but here is a list of the most important. Check
+the documentation for a more thorough description.
+\begin{itemize}
+  \item[\code{dna\_segs}] A list of DNA segment objects.
+  \item[\code{comparisons}] A list of comparisons. Should containt one element
+    less than the previous.
+  \item[\code{tree}] An eventual phylogenetic tree to be plotted at the
+    left of the figure.
+  \item[\code{annotations}] An annotation object, or a list of annotations. 
+    Will display annotations to the first, or to all DNA segments, respectively.
+  \item[\code{xlims}] A list of even-numbered numeric vectors, giving the
+    borders of sub-segments to be plotted. The vector \code{c(1,5000,8000,6000)}
+    will display two sub-segments (1 to 5000 and 6000 to 8000), the second 
+    being in reverse orientation.
+  \item[\code{main}] A title to the plot.
+  \item[\code{scale}] Should a scale be displayed at the bottom right of the
+    plot?
+  \item[\code{dna\_seg\_scale}] Allows to control the addition of scales
+    to each segments. If simply \code{TRUE}, will display a scale on each
+    segment. If a vector, a scale will be displayed for the corresponding 
+    \code{TRUE} element.
+  \item[\code{global\_color\_scheme}] Allows to recalculate the colors of 
+    the comparisons, to have colors corresponding to the same scale for all 
+    comparisons.
+  \item[\code{plot\_new}] Turn off to avoid creating a new plot. Escpecially
+    useful to integrate a \genoPlotR{} plot in a larger figure.
+\end{itemize}
+
+\section{Other useful functions}
+
+\begin{itemize}
+  \item[\code{apply\_color\_scheme}] Allows to apply a gray scale or shades
+    of red and blue to a comparison.
+  \item[\code{middle}] Useful to get the middle of a gene, especially to
+    create annotations.
+  \item[Datasets] Type \code{data(package="genoPlotR")} to get the full list.
+\end{itemize}
+
+\section{Examples}
+
+This section gives step-by-step examples, of gradual complexity. The last
+one shows how to combine several plots and to annotate already generated 
+plots.
+
+For all examples, the first step is to load the library.
+
+<<loadLib>>=
+library(genoPlotR)
+@ 
+
+\subsection{Example 1: A very simple example}
+
+The data used in this example is a dataset included in \genoPlotR{}, but
+for the sake of demonstration, it will be recreated from scratch. To retrieve
+data from the package, use \code{data(three\_genes)}.
+
+\subsubsection{Data generation and a very simple plot}
+
+First, three \code{dna\_segs} are generated, from data frames with columns 
+name, start, end, strand and col.
+
+<<ex1_create_dna_segs>>=
+df1 <- data.frame(name=c("feat1", "feat2", "feat3"),
+                  start=c(2, 1000, 1050),
+                  end=c(600, 800, 1345),
+                  strand=c(-1, -1, 1),
+                  col=c("blue", "grey", "red"))
+dna_seg1 <- dna_seg(df1)
+df2 <- data.frame(name=c("feat1", "feat2", "feat3"),
+                  start=c(50, 800, 1200),
+                  end=c(900, 1100, 1322),
+                  strand=c(-1, 1, 1),
+                  col=c("blue", "grey", "red"))
+dna_seg2 <- dna_seg(df2)
+df3 <- data.frame(name=c("feat1", "feat2", "feat3"),
+                  start=c(1899, 2108, 2803),
+                  end=c(2034, 2732, 3620),
+                  strand=c(-1, -1, 1),
+                  col=rep("blue", 3))
+dna_seg3 <- dna_seg(df3)
+dna_segs <- list(dna_seg1, dna_seg2, dna_seg3)
+@ 
+
+Then, create two \code{comparisons} objects from data frames with columns
+start1, end1, start2, end2 and col. In the first comparison, the starts
+and ends correspond to the genes created above.
+
+<<ex1_create_comps>>=
+df4 <- data.frame(start1=dna_seg1$start,
+                  end1=dna_seg1$end,
+                  start2=dna_seg2$start,
+                  end2=dna_seg2$end)
+comparison1 <- comparison(df4)
+df5 <- data.frame(start1=c(50, 800),
+                  end1=c(500, 1100),
+                  start2=c(1899, 2732),
+                  end2=c(2034, 2508),
+                  col=c("#67000D", "#08306B"))
+comparison2 <- comparison(df5)
+comparisons <- list(comparison1, comparison2)
+@
+
+This constitutes all the material required to create a basic plot.
+
+<<ex1_raw_plot>>=
+plot_gene_map(dna_segs=dna_segs, comparisons=comparisons)
+@ 
+\begin{center}
+<<fig=TRUE, width=6, height=2.5, echo=FALSE, results=hide>>=
+<<ex1_raw_plot>>
+@ 
+\end{center}
+  
+\subsubsection{A more elaborate plot}
+
+Many options can be added to this simple plot. To begin with, the first 
+comparison will be colored in grey scale, using an arbitrary scale passed 
+to the function \code{apply\_color\_scheme}.
+
+<<ex1_col_scheme>>=
+comparisons[[1]]$col <- apply_color_scheme(c(0.6, 0.4, 0.5), "grey")
+@ 
+
+Second, names and a phylogenetic tree are prepared. The function 
+\code{newick2phylog} from the package \pkg{ade4} is used to prepare an
+object suitable for \genoPlotR{}. The elements of the list of 
+\code{dna\_segs} must be named and correspond to the labels of the
+tree object, to avoid confusion.
+
+<<ex1_tree>>=
+names <- c("Huey", "Dewey", "Louie")
+names(dna_segs) <- names
+tree_HDL <- newick2phylog("(((Huey:4.2,Dewey:3.9):3.1,Louie:7.3):1);")
+@ 
+
+Third, annotations to the first segment are added. The first gene is annotated
+in its middle (thus the use of \code{middle} function), while a region 
+comprising the second and third gene are annotated with a square bracket.
+Note the use of a numeric value for \code{x1} and \code{NA} for the first
+gene, and the use of two numeric values for the second region.
+
+<<ex1_annots>>=
+mid_pos <- middle(dna_segs[[1]])
+annot <- annotation(x1=c(mid_pos[1], dna_segs[[1]]$end[2]),
+                    x2=c(NA, dna_segs[[1]]$end[3]),
+                    text=c(dna_segs[[1]]$name[1], "region1"),
+                    rot=c(30, 0), col=c("grey", "black"))
+@ 
+
+Finally, the plot is drawn, addind a title, allowing 2 inches for the tree
+width (instead of the default 20\% of the plot), and changing the annotation
+space to 1.3 lines (as opposed to 1 by default). The different options can be
+checked by removing/adding the different arguments to \code{plot\_gene\_map}. 
+
+<<ex1_adv_plot>>=
+plot_gene_map(dna_segs=dna_segs, comparisons=comparisons,
+              annotations=annot, annotation_height=1.3,
+              tree=tree_HDL, tree_width=2,
+              main="Comparison of Huey, Dewey and Louie")
+@
+
+To explore the different options, new windows can be opened by using 
+\code{x11()} or \code{window()}, depending on the OS, or saved to files 
+using for example \code{png()} or \code{pdf()}. To finish the plot, the 
+function \code{dev.off()} should be called.
+
+
+\begin{center}
+<<fig=TRUE, width=6, height=2.5, echo=FALSE, results=hide>>=
+<<ex1_adv_plot>>
+@ 
+\end{center}
+The plot can be saved by adding, in front of the call to 
+\code{plot\_gene\_map}, a call to one of the graphical device functions of 
+\R{} (e.g. \code{pdf()}, \code{png()}, \code{jpeg()}). To finish the plot,
+the function \code{dev.off()} should be called.
+
+\subsection{Example 2: Generating data online}
+
+This section will give an example of how data can be retrieved and generated
+online, using the resources available at the NCBI
+\url{http://www.ncbi.nlm.nih.gov/}. This example was devised on 5/3/2010, and
+given the relatively rapid rate of changes in public databases, it is 
+possible that part or all of this example becomes obsolete. Please contact
+the author of this document (lionel.guy@ebc.uu.se) in such a case.
+
+In this example, the genomes of \emph{Bartonella henselae} 
+(RefSeq accession NC\_005956) and \emph{Bartonella quintana} (RefSeq 
+accession NC\_005955) will be compared.
+
+\subsubsection{Retrieving \code{dna\_seg} data}
+
+To retrieve Genbank files, the Entrez Nucleotide Database can be directly 
+queried, provided that the accession number is known. In such a case, the
+database can be accessed from the home page of NCBI 
+(\url{http://www.ncbi.nlm.nih.gov/}), by entering the accession number 
+(e.g. NC\_005956) in the search field and by selecting ``Nucleotide'' in 
+the ``Search'' list. The Genbank file is then displayed. It can be saved it in 
+a suitable format by clicking on the ``Download'' link and by selecting 
+``GenBank''. 
+
+If the accession number is unknown, the nucleotide database can be queried
+for the name of the organism, or accessed via a list 
+(\url{http://www.ncbi.nlm.nih.gov/genomes/lproks.cgi}). In that list, the files
+can be directly retrieved from the ftp site of the NCBI (by clicking the letter
+``F'' in the corresponding row). Alternatively, it is possible to click 
+on the accession number, which leads to a page summarizing information on
+the queried genome. Access to the page described above is achieved by clicking
+on the accession number linked under the title ``Refseq''. 
+
+Repeat the procedure for the other genome (NC\_005955).
+
+\subsubsection{Performing web-based BLAST and retrieving result}
+
+The two previously retrieved genomes can be compared with BLAST, more
+precisely using the \code{bl2seq} feature of BLAST.
+
+Access to the BLAST section of the NCBI website is achieved by clicking on
+BLAST in the ``Popular resources'' section of the NCBI home page, or by using
+a direct link (\url{http://blast.ncbi.nlm.nih.gov/Blast.cgi}). A link to
+the ``bl2seq'' resource is presented in the ``Specialized BLAST'' section.
+
+There, the genomes can be aligned by entering the two genome accession 
+numbers. The other arguments to BLAST can then be modified at will to suit 
+the needs of the comparison. Once the BLAST search is run, the hit table 
+(which can be read by \genoPlotR{} can be downloaded by clicking on
+``Download'' and ``Hit Table(text)'' in the result page.
+
+\subsubsection{Plotting}
+
+Provided that the Genbank files and their comparison have been saved
+under the correct names in the directory where R was started, 
+they can be parsed directly by \genoPlotR{}.
+
+<<ex_2_load_fake, results=hide, eval=FALSE>>=
+BH <- try(read_dna_seg_from_file("NC_005956.gbk"))
+BQ <- try(read_dna_seg_from_file("NC_005955.gbk"))
+BH_vs_BQ <- try(read_comparison_from_blast("NC_005956_vs_NC_005955.blast"))
+@ 
+
+<<ex2_load_silent, echo=FALSE, results=hide>>=
+data(barto)
+BH <- barto$dna_segs[[3]]
+BQ <- barto$dna_segs[[4]]
+BH_vs_BQ <- barto$comparisons[[3]]
+@ 
+
+The data, or a sample thereof (using \code{xlims}) can now be plotted.
+
+<<ex2_plot>>=
+xlims <- list(c(1,50000), c(1,50000))
+plot_gene_map(dna_segs=list(BH, BQ),
+              comparisons=list(BH_vs_BQ),
+              xlims=xlims,
+              main="BH vs BQ, comparison of the first 50 kb",
+              gene_type="side_blocks",
+              dna_seg_scale=TRUE, scale=FALSE)
+
+@ 
+\begin{center}
+<<fig=TRUE, width=6, height=1.8, echo=FALSE, results=hide>>=
+<<ex2_plot>>
+@ 
+\end{center}
+\subsection{Example 3: Mauve alignment of four \emph{Bartonella} genomes}
+
+\genoPlotR{} is able to parse the backbone file produced by Mauve (for details
+on the format, see \url{http://asap.ahabs.wisc.edu/mauve-aligner/mauve-user-guide/mauve-output-file-formats.html}).
+
+The elements of the DNA segments are no longer genes, but Mauve blocks. 
+Similarly, the comparison reflects the correspondances between these blocks. 
+The strand indicates the orientation of the block with respect to a reference,
+which by default is the first genome in the comparison. A single list is 
+returned, which contains two lists, one containing the \code{dna\_seg}s and
+the other one the \code{comparison}s.
+
+The genomes in the backbone file are not named, so it is advised to be 
+cautious in the order of the names given.
+
+In this example, 4 genomes of \emph{Bartonella} have been compared with 
+Mauve 2.3.1. The smaller blocks (smaller than 10 kb) are filtered out, and
+the second genome (which is the largest) is taken as the reference). 
+The data set can also be accessed in the package by running
+\code{data(mauve\_bbone)}. 
+
+<<ex3_read_data>>=
+bbone_file <- system.file('extdata/barto.backbone', package = 'genoPlotR')
+bbone <- read_mauve_backbone(bbone_file, ref=2, filter_low=10000)
+names <- c("B_bacilliformis", "B_grahamii", "B_henselae", "B_quintana")
+names(bbone$dna_segs) <- names
+@ 
+
+Calculating the lengths by adding the length on both sides of the comparisons
+
+<<ex3_length>>=
+for (i in 1:length(bbone$comparisons)){
+  cmp <- bbone$comparisons[[i]]
+  bbone$comparisons[[i]]$length <- 
+    abs(cmp$end1 - cmp$start1) + abs(cmp$end2 - cmp$start2)
+}
+@ 
+
+Now plotting, using \code{global\_color\_scheme} to color the segments 
+according to their lengths.
+
+<<ex3_plot>>=
+plot_gene_map(dna_segs=bbone$dna_segs, 
+              comparisons=bbone$comparisons,
+              global_color_scheme=c("length", "increasing", "red_blue", 0.7),
+              override_color_schemes=TRUE)
+@
+\begin{center}
+<<fig=TRUE, width=8, height=2, echo=FALSE, results=hide>>=
+<<ex3_plot>>
+@ 
+\end{center}
+
+\subsection{Example 4: Several sub-segments of four \emph{Bartonella} genomes}
+
+This examples presents how to use the \code{xlims} argument to represent 
+several sub-segments of the same segment, and how to show them in a reverse
+orientation.
+
+The data used here is also a comparison between four \emph{Bartonella} genomes
+(see above), but the comparison has been performed using BLAST. The dataset
+is available in the package (\code{barto}).
+
+First, the data is loaded and a tree is created. 
+
+<<ex4_load_tree>>=
+data(barto)
+tree_barto <- newick2phylog("(BB:2.5,(BG:1.8,(BH:1,BQ:0.8):1.9):3);")
+@ 
+
+The \code{xlims} argument is then created. It is a list with as many elements
+as there are \code{dna\_seg}s. Each element is an even-numbered numeric 
+vector, containing the left and right border of each sub-segment, 
+consecutively. In the first DNA segment, two sub-segments are shown: between
+1,415,000 and 1,445,000 in a reverse orientation, and between 1,380,000 and
+1,412,000, in ``normal'' orientation. In the remaining segments, 3, 3, and 1 
+subsegments are shown, respectively, all in normal orientation.
+
+<<ex4_xlims>>=
+xlims <- list(c(1445000, 1415000, 1380000, 1412000),
+              c(  10000,   45000,   50000,   83000, 90000, 120000),
+              c(  15000,   36000,   90000,  120000, 74000,  98000),
+              c(   5000,   82000))
+@
+
+To complete the example, annotations are added. Genes that have a gene name 
+(i.e. these for which the name is not the locus or synonym name) are used
+to annotate the segment. Only every fourth gene is annotated, to avoid
+overlapping the tags. The function \code{middle} is used to retrieve the 
+middle of each element of the DNA segments.
+
+<<ex4_annots>>=
+annots <- lapply(barto$dna_segs, function(x){
+  mid <- middle(x)
+  annot <- annotation(x1=mid, text=x$name, rot=30)
+  idx <- grep("^[^B]", annot$text, perl=TRUE)
+  annot[idx[idx %% 4 == 0],] 
+})
+@ 
+
+Finally, plot the result, using scales on each DNA segment, adding a title,
+and not limiting the plotting area to the longest segment, to allow for a better
+placement of the sub-segments.
+
+<<ex4_plot>>=
+plot_gene_map(barto$dna_segs, barto$comparisons, tree=tree_barto,
+              annotations=annots,
+              xlims=xlims,
+              limit_to_longest_dna_seg=FALSE,
+              dna_seg_scale=TRUE, scale=FALSE,
+              main="Comparison of homologous segments in 4 Bartonella genomes")
+@ 
+\begin{center}
+<<fig=TRUE, width=6, height=4, echo=FALSE, results=hide>>=
+<<ex4_plot>>
+@ 
+\end{center}
+
+\subsection{Example 5: Two segments of the Y chromsome in human and chimp}
+
+In this example, the ability to plot introns and exons is demontrated.
+
+First, data is loaded. The dataset included in the package is used, but any
+Genbank file containing introns and exons can be used. Some annotations are
+added: for each segment, the range of each gene is calculated, and 
+corresponding annotations are created. 
+
+<<ex5_load_annot>>=
+data(chrY_subseg)
+genes_homo <- unique(chrY_subseg$dna_segs[[1]]$gene)
+x_homo <- sapply(genes_homo, function(x)
+                 range(chrY_subseg$dna_segs[[1]]
+                       [chrY_subseg$dna_segs[[1]]$gene == x,])
+                 )
+annot_homo <- annotation(x1=x_homo[1,], x2=x_homo[2,],
+                         text=dimnames(x_homo)[[2]])
+genes_pan <- unique(chrY_subseg$dna_segs[[2]]$gene)
+x_pan <- sapply(genes_pan, function(x)
+                range(chrY_subseg$dna_segs[[2]]
+                      [chrY_subseg$dna_segs[[2]]$gene == x,])
+                 )
+annot_pan <- annotation(x1=x_pan[1,], x2=x_pan[2,],
+                        text=dimnames(x_pan)[[2]])
+@ 
+
+The segments can be directly plotted, passing the annotations as a list.
+
+<<ex5_plot>>=
+main <- "Comparison of two subsegments in H. sapiens and P. troglodytes"
+plot_gene_map(chrY_subseg$dna_segs, chrY_subseg$comparison,
+              annotations=list(annot_homo, annot_pan),
+              dna_seg_scale=TRUE,
+              main=main,
+              scale=FALSE)
+@ 
+\begin{center}
+<<fig=TRUE, width=6, height=2, echo=FALSE, results=hide>>=
+<<ex5_plot>>
+@ 
+\end{center}
+
+\subsection{Example 6: Combining several \genoPlotR{} figures and annotating thefigure}
+
+In this example, some of the previous plots are combined in a single, 
+multi-panel figure. Using the tools present in the \pkg{grid} package, the
+plot is annotated further. More information is available in the documentation
+of the \pkg{grid} package.
+
+The example here uses \R{} objects built in the previous examples, which 
+should thus be run first.
+
+First, a \code{viewport} that will contain all plots is pushed in a new page.
+The plot is divided in three rows, of relative heights 1, 1.3 and 0.8.
+
+<<ex6_startdevice, echo=FALSE, results=hide>>=
+sysname <- Sys.info()["sysname"]
+if (sysname == "Windows"){
+  pdf(file="ex6.pdf", width=6, height=8, onefile=TRUE)
+} else {
+  cairo_pdf(file="ex6.pdf", width=6, height=8, onefile=TRUE)
+}
+@ 
+<<ex6_vpext, results=hide>>=
+pushViewport(viewport(layout=grid.layout(3,1,
+                        heights=unit(c(1,1.3,0.8), rep("null", 3))),
+                      name="overall_vp"))
+@ 
+
+The three panels A to C, containing the result of the above examples 4 to 6 
+are pushed into viewports, calling \code{upViewport()} after each plot to 
+come back to the main viewport. After the last plot, \code{upViewport(2)}
+is called to go up 2 viewports, coming back to the root viewport. Each time,
+the option \code{plot\_new=FALSE} is used, to avoid plotting in a new 
+page every single panel.
+
+
+<<ex6_plot, results=hide>>=
+## Panel A
+pushViewport(viewport(layout.pos.row=1, name="panelA"))
+plot_gene_map(dna_segs=bbone$dna_segs, comparisons=bbone$comparisons,
+              dna_seg_scale=c(FALSE, FALSE, FALSE, TRUE),
+              scale=FALSE, main="A", main_pos="left", plot_new=FALSE)
+upViewport()
+## Panel B
+pushViewport(viewport(layout.pos.row=2, name="panelB"))
+plot_gene_map(barto$dna_segs, barto$comparisons, 
+              annotations=annots, tree=tree_barto, xlims=xlims,
+              limit_to_longest_dna_seg=FALSE, scale=FALSE,
+              dna_seg_scale=TRUE, main="B", main_pos="left",
+              annotation_height=0.6, annotation_cex=0.5, 
+              plot_new=FALSE)
+upViewport()
+## Panel C
+pushViewport(viewport(layout.pos.row=3, name="panelC"))
+plot_gene_map(chrY_subseg$dna_segs, chrY_subseg$comparison,
+              annotations=list(annot_homo, annot_pan),
+              dna_seg_scale=TRUE, scale=FALSE, main="C", main_pos="left",
+              plot_new=FALSE)
+upViewport(0)
+@ 
+
+The commands \code{current.vpTree()} and \code{grid.ls()} can be used to see the current 
+viewport structure, and to see all object names.
+<<ex6_currentvp>>=
+grid_list <- grid.ls(grob=TRUE, viewports=TRUE, print=FALSE)
+str(grid_list)
+current.vpTree()
+@ 
+
+Despite the complexity of the viewport structure, it is possible to identify
+the previously defined panel A, B and C. Using the \code{downViewport} 
+commands, it will be possible to find and modify elements of the plots. 
+First, the labels of panel A will be modified to have the names in italics
+and to replace the underscores by a dot and a space. The second label is 
+also removed. Note the use of \code{grid.edit} and \code{grid.remove}. 
+Warning: the whole figure is redrawn for each use of the edition 
+function, it can thus become relatively long.
+
+<<ex6_mod_panela, results=hide>>=
+downViewport("panelA")
+for (i in 1:length(names)){
+  new_label <- sub("_", ". ", names[[i]])
+  grid.edit(paste("label", i, sep="."), label=new_label, 
+            gp=gpar(fontface="italic"))
+}
+grid.remove("label.2")
+upViewport(0)
+@ 
+
+In a second time, a red rectangle will be placed around one subsegment of
+panel B.
+
+<<ex6_mod_panelb>>=
+downViewport("panelB")
+downViewport("dna_seg.3.2")
+grid.rect(height = unit(2.2, "npc"), gp=gpar(col="red", lwd=2, fill=0))
+upViewport(0)
+@ 
+<<ex6_devoff echo=FALSE, results=hide>>=
+dev.off()
+@ 
+\begin{center}
+\includegraphics[page=6]{ex6} 
+\end{center}
+
+\subsection{Example 7: Using user-defined \code{gene\_type} and \code{seg\_plot}}
+In this example, the use of personalized \code{gene\_type}s and of 
+\code{seg\_plots} to show data next to DNA segments is demonstrated. The 
+same data as in example 4 is used.
+
+A graphical function is defined, to represent triangles instead of arrows 
+for genes. The triangles are oriented in function of their strand and the 
+transparency is set differently according to a length cut-off, passed with 
+the function. As required, the function has only two arguments, a \code{gene} 
+which is a row of a \code{dna\_seg}, and the dots (...). Any extra argument 
+passed to \code{plot\_gene\_map} will be passed in turn to the 
+\code{gene\_type}-defining function.
+
+<<ex7_starGrob, results=hide>>=
+starGrob <- function(gene, ...){
+  ## Coordinates for the star
+  x <- sin(((0:5)/2.5)*pi)*(gene$end-gene$start)/2 + (gene$end+gene$start)/2
+  y <- cos(((0:5)/2.5)*pi)*gene$strand*0.5 + 0.5
+  idx <- c(1, 3, 5, 2, 4, 1)
+  ## Attribute line_col only if present in the gene
+  line_col <- if (!is.null(gene$line_col)) gene$line_col else gene$col
+  ## Having a conditional transparency, depending on a length cut-off
+  ## passed via dots
+  length_cutoff <- list(...)$length_cutoff
+  if (!is.null(length_cutoff)){
+    alpha <- if ((gene$end-gene$start) < length_cutoff)  0.3 else  0.8
+  } else alpha <- 1
+  
+  ## Grobs
+  g <- polygonGrob(x[idx], y[idx], gp=gpar(fill=gene$col, col=line_col,
+                                     lty=gene$lty, lwd=gene$lwd, alpha=alpha),
+                   default.units="native")
+  t <- textGrob(label="***", x=(gene$end+gene$start)/2, y=0.5,
+                default.units="native")
+  gList(g, t)
+}
+@ 
+
+To make use of that, the \code{gene\_type} column of the \code{dna\_segs} must be replaced. To make use of the supplementary argument \code{line\_col}, a column is added to the \code{dna\_seg} object. Finally, plot the result.
+
+<<ex7_replace_geneType>>=
+barto$dna_segs[[2]]$gene_type <- "starGrob"
+barto$dna_segs[[4]]$gene_type <- "starGrob"
+line_col <- rep(1:20, (nrow(barto$dna_segs[[3]]) %% 20)+1)
+barto$dna_segs[[2]]$line_col <- line_col[1:nrow(barto$dna_segs[[2]])]
+plot_gene_map(barto$dna_segs, barto$comparisons, tree = tree_barto,
+              annotations = annots,
+              xlims = xlims, 
+              dna_seg_scale = TRUE,
+              length_cutoff = 600)
+@ 
+\begin{center}
+<<fig=TRUE, width=7, height=6, echo=FALSE, results=hide>>=
+<<ex7_replace_geneType>>
+@ 
+\end{center}
+
+Now, let's plot some random data along with the DNA segment. A standard 
+\code{grid} function returning a grob is used, but it is possible to use 
+personalized functions, as long as they return \code{grob} or \code{gList} 
+objects. For example, the function \code{starGrob} defined in the previous 
+exercise could be modified to be used here.
+
+The \code{seg\_plot} objects are first defined, with the following structure:
+<<ex7_definesegplots>>=
+seg_plots <- lapply(barto$dna_segs, function(ds){
+  x <- seq(1, range(ds)[2], by=1000)
+  y <- jitter(seq(100, 300, length=length(x)), amount=50)
+  seg_plot(func=linesGrob, args=list(x=x, y=y, gp=gpar(col=grey(0.3), lty=2)))
+})
+str(seg_plots[[1]])
+@ 
+
+Each \code{seg\_plot} element has a \code{func} argument, giving the function 
+to use to plot the data, here the \code{grid} function \code{linesGrob}. The
+arguments that are passed to this function are contained in the \code{args} 
+argument, a list. Notice the use of \code{gp=gpar(...)}. 
+
+The result can then be plotted, and modulated using the arguments 
+\code{seg\_plot\_height}, \code{seg\_plot\_height\_unit}, \code{seg\_plot\_yaxis},
+and \code{seg\_plot\_yaxis\_cex}.
+
+<<ex7_plotwithsegplots, results=hide>>=
+plot_gene_map(barto$dna_segs, barto$comparisons, tree = tree_barto,
+              annotations = annots,
+              xlims = xlims,
+              seg_plots = seg_plots,
+              seg_plot_height = 0.5,
+              seg_plot_height_unit = "null",
+              seg_plot_yaxis = 2,
+              seg_plot_yaxis_cex = 0.7)
+@ 
+<<fig=TRUE, width=7, height=6, echo=FALSE, results=hide>>=
+<<ex7_plotwithsegplots>>
+@ 
+\end{document}

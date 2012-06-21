@@ -7,6 +7,9 @@ read_mauve_backbone <- function(file, ref=1, gene_type="side_blocks",
   blocks <- read.table(file, stringsAsFactors=FALSE, header=header)
   n_orgs <- ncol(blocks)/2
   n_blocks <- nrow(blocks)
+  # check ref parameter
+  if (!(ref %in% 1:n_orgs))
+    stop("Argument ref must be a positive integer =< row number")
   # ordering from ref: 
   for (i in 1:n_blocks){
     if (blocks[i,ref*2] < 0) blocks[i,] <- -blocks[i,] 
@@ -64,6 +67,7 @@ read_mauve_backbone <- function(file, ref=1, gene_type="side_blocks",
                        end2=ifelse(strand == 1, abs(e), abs(s)))
       comparison <- as.comparison(df[df$start1 != 0 & df$start2 != 0,])
       # apply red_blue color scheme
+      #if(i == n_orgs) browser()
       comparison$col <- apply_color_scheme(x=NULL,
                                            direction=comparison$direction,
                                            color_scheme="red_blue")
