@@ -1,7 +1,7 @@
 ###############################################################################
 # PLOT GENE MAPS                                                              #
 ###############################################################################
-# A R framework to plot comparison of gene stretches, à la Artemis, but
+# A R framework to plot comparison of gene stretches, a la Artemis, but
 # with production-like graphics, and a static interface
 ################################################################################
 # Plotting function

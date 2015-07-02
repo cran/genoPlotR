@@ -1,3 +1,9 @@
+import("grid")
+import("ade4")
+import("methods")
+importFrom("grDevices", "grey", "rainbow", "rgb")
+importFrom("stats", "median", "optim", "weighted.mean")
+importFrom("utils", "read.table")
 export(
   plot_gene_map,
 
@@ -56,5 +62,8 @@ S3method(reverse, comparison)
 S3method(range, annotation)
 S3method(trim, annotation)
 
+S3method(trim, seg_plot)
+
 S3method(trim, default)
 S3method(reverse, default)
+
