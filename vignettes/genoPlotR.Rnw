@@ -833,4 +833,5 @@ plot_gene_map(barto$dna_segs, barto$comparisons, tree = tree_barto,
 <<fig=TRUE, width=7, height=6, echo=FALSE, results=hide>>=
 <<ex7_plotwithsegplots>>
 @ 
+
 \end{document}
