@@ -12,8 +12,8 @@ dna_seg <- function(x, ...){
   }
 }
 # convert to dna_seg format. 
-as.dna_seg <- function(df, col="blue", lty=1, lwd=1, pch=8, cex=1,
-                       gene_type="arrows"){
+as.dna_seg <- function(df, col="blue", fill="transparent", lty=1, lwd=1, pch=8,
+                       cex=1, gene_type="arrows"){
   # check for class dna_seg, list, df
   if (is.dna_seg(dna_seg)) return(df)
   #if (is.list(df) && !is.data.frame(df)) df <- dna_seg(df)
@@ -34,6 +34,7 @@ as.dna_seg <- function(df, col="blue", lty=1, lwd=1, pch=8, cex=1,
     if (is.factor(df$name)) df$name <- as.character(df$name)
     if (is.factor(df$strand)) df$strand <- as.character(df$strand)
     if (is.factor(df$col)) df$col <- as.character(df$col)
+    if (is.factor(df$fill)) df$fill <- as.character(df$fill)
     if (is.factor(df$gene_type)) df$gene_type <- as.character(df$gene_type)
     # care for strand
     if (is.character(df$strand)) {
@@ -45,6 +46,7 @@ as.dna_seg <- function(df, col="blue", lty=1, lwd=1, pch=8, cex=1,
       stop("Strand vector must be composed of 1, -1, - and +, uniquely")
     # col
     if (is.null(df$col)) df$col <- col
+    if (is.null(df$fill)) df$fill <- fill
     # lwd & lty
     if (is.null(df$lty)) df$lty <- lty
     if (is.null(df$lwd)) df$lwd <- lwd

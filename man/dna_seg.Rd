@@ -12,7 +12,8 @@
 }
 \usage{
 dna_seg(x, ...)
-as.dna_seg(df, col = "blue", lty = 1, lwd = 1, pch = 8, cex = 1, gene_type = "arrows")
+as.dna_seg(df, col = "blue", fill = "transparent", lty = 1, lwd = 1,
+           pch = 8, cex = 1, gene_type = "arrows")
 is.dna_seg(dna_seg)
 }
 \arguments{
@@ -28,7 +29,15 @@ is.dna_seg(dna_seg)
   }
   \item{col}{
     Either a color vector of the same length as \code{df} or of length
-    one, to be applied to the whole object. Default to blue.
+    one, to be applied to the whole object. Will be passed to
+    corresponding \code{grob} object. Default to blue.
+  }
+  \item{fill}{
+    Either a fill vector of the same length as \code{df} or of length
+    one, to be applied to the whole object. Will be passed to
+    corresponding \code{grob} object. Default to \code{NULL}. If
+    \code{NULL}, then \code{col} is used to set the \code{fill}
+    parameter.
   }
   \item{lty}{
     A vector of the same length as \code{df} or of length one, giving
@@ -115,6 +124,7 @@ gene2a <- dna_seg(list(name="feat1", start=50, end=900, strand="-", col="blue"))
 genes2b <- dna_seg(data.frame(name=c("feat2", "feat3"), start=c(800, 1200),
                               end=c(1100, 1322), strand=c("+", 1),
                               col=c("grey", "red"),
+                              fill=c("transparent", "grey"),
                               gene_type=c("arrows", "blocks")))
 dna_seg2 <- c(gene2a, genes2b)
 

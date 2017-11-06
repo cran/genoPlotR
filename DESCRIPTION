@@ -1,8 +1,8 @@
 Package: genoPlotR
 Type: Package
 Title: Plot Publication-Grade Gene and Genome Maps
-Version: 0.8.6
-Date: 2015-07-02
+Version: 0.8.7
+Date: 2017-11-06
 Author: Lionel Guy <lionel.guy@imbim.uu.se>
 URL: http://genoplotr.r-forge.r-project.org/
 Depends: R (>= 2.10.0), ade4, grid
@@ -15,8 +15,8 @@ License: GPL (>= 2)
 LazyLoad: yes
 Repository: CRAN
 Repository/R-Forge/Project: genoplotr
-Repository/R-Forge/Revision: 60
-Repository/R-Forge/DateTimeStamp: 2017-05-15 14:43:14
-Date/Publication: 2017-05-16 08:56:55 UTC
+Repository/R-Forge/Revision: 63
+Repository/R-Forge/DateTimeStamp: 2017-11-06 09:47:16
+Date/Publication: 2017-11-06 14:22:30 UTC
 NeedsCompilation: no
-Packaged: 2017-05-15 15:05:36 UTC; rforge
+Packaged: 2017-11-06 10:05:46 UTC; rforge

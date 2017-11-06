@@ -185,9 +185,9 @@ will attempt to guess the correct format of the file.
 
 The first three files are common biological formats and can be downloaded 
 from major databases, such as the NCBI (\url{http://www.ncbi.nlm.nih.gov/}) 
-and the EMBL (\url{http://www.ebi.ac.uk/embl/Access/index.html}). The 
+and the ENA (\url{http://www.ebi.ac.uk/ena}). The 
 definition of EMBL and Genbank files can be found at 
-\url{http://www.ebi.ac.uk/embl/Documentation/FT_definitions/feature_table.html}.
+\url{ftp://ftp.ebi.ac.uk/pub/databases/embl/doc/FT_current.html}.
 
 \subsection{Comparisons}
 
@@ -200,7 +200,7 @@ definition of EMBL and Genbank files can be found at
 \subsection{Mauve output}
 
 The backbone output of the Mauve genome aligner 
-(\url{http://asap.ahabs.wisc.edu/mauve/index.php}) can be parsed using 
+(\url{http://darlinglab.org/mauve/mauve.html}) can be parsed using 
 \code{read\_comparison\_from\_blast}\footnote{Tested with Mauve 2.3.1}.
 
 The function will return a list consisting of a list of \code{dna\_seg} objects 
@@ -412,7 +412,7 @@ a suitable format by clicking on the ``Download'' link and by selecting
 
 If the accession number is unknown, the nucleotide database can be queried
 for the name of the organism, or accessed via a list 
-(\url{http://www.ncbi.nlm.nih.gov/genomes/lproks.cgi}). In that list, the files
+(\url{https://www.ncbi.nlm.nih.gov/genome/browse/}). In that list, the files
 can be directly retrieved from the ftp site of the NCBI (by clicking the letter
 ``F'' in the corresponding row). Alternatively, it is possible to click 
 on the accession number, which leads to a page summarizing information on
@@ -476,7 +476,7 @@ plot_gene_map(dna_segs=list(BH, BQ),
 \subsection{Example 3: Mauve alignment of four \emph{Bartonella} genomes}
 
 \genoPlotR{} is able to parse the backbone file produced by Mauve (for details
-on the format, see \url{http://asap.ahabs.wisc.edu/mauve-aligner/mauve-user-guide/mauve-output-file-formats.html}).
+on the format, see \url{http://darlinglab.org/mauve/user-guide/files.html}).
 
 The elements of the DNA segments are no longer genes, but Mauve blocks. 
 Similarly, the comparison reflects the correspondances between these blocks. 

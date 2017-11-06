@@ -7,6 +7,10 @@ gene_grob <- function(gene, head_len=200, i=0, ...){
   if (nrow(gene) > 1) stop ("gene must be single-row")
   mid <- (gene$start + gene$end)/2
   name <- paste("seg.", i, ".", gene$name, sep="")
+  color <- gene$col
+  fill <- gene$fill
+  #browser()
+  if (is.null(fill)) fill <- color
   # arrows
   if (gene$gene_type == "arrows" || gene$gene_type == "headless_arrows"){
     if (gene$gene_type == "arrows"){
@@ -17,7 +21,8 @@ gene_grob <- function(gene, head_len=200, i=0, ...){
       arrow <- block_coord(gene$start, gene$end, strand=1, y=0.25)
     }
     grob <- polygonGrob(arrow$x, arrow$y, name=name,
-                        gp=gpar(fill=gene$col, lty=gene$lty, lwd=gene$lwd),
+                        gp=gpar(col=color, fill=fill, lty=gene$lty,
+                                lwd=gene$lwd),
                         default.units="native")
   }
   # blocks
@@ -29,8 +34,8 @@ gene_grob <- function(gene, head_len=200, i=0, ...){
       block <- block_coord(gene$start, gene$end, strand=2, y=0)
     }
     grob <- polygonGrob(block$x, block$y, name=name,
-                        gp=gpar(fill=gene$col, col=gene$col, lty=gene$lty,
-                          lwd=gene$lwd),
+                        gp=gpar(col=color, fill=fill, lty=gene$lty,
+                                lwd=gene$lwd),
                         default.units="native")  
   }
   # lines
@@ -43,7 +48,8 @@ gene_grob <- function(gene, head_len=200, i=0, ...){
       y <- 0.5
     }
     grob <- segmentsGrob(x0=gene$start, y0=y, x1=gene$end, y1=y, name=name,
-                         gp=gpar(col=gene$col, lwd=gene$lwd, lty=gene$lty),
+                         gp=gpar(col=color, fill=fill, lwd=gene$lwd,
+                                 lty=gene$lty),
                          default.units="native")
   }
   # exons
@@ -55,8 +61,8 @@ gene_grob <- function(gene, head_len=200, i=0, ...){
       block <- exon_coord(gene$start, gene$end, 0)
     }
     grob <- polygonGrob(block$x, block$y, name=name,
-                        gp=gpar(fill=gene$col, col=gene$col, lty=gene$lty,
-                          lwd=gene$lwd),
+                        gp=gpar(fill=fill, col=color, lty=gene$lty,
+                                lwd=gene$lwd),
                         default.units="native")  
   }
   
@@ -69,7 +75,8 @@ gene_grob <- function(gene, head_len=200, i=0, ...){
       y0 <- 0; y1 <- 1
     }
     grob <- segmentsGrob(x0=mid, y0=y0, x1=mid, y1=y1, name=name,
-                         gp=gpar(col=gene$col, lwd=gene$lwd, lty=gene$lty),
+                         gp=gpar(col=color, fill=fill,lwd=gene$lwd,
+                                 lty=gene$lty),
                          default.units="native")
   }
 
@@ -91,9 +98,12 @@ gene_grob <- function(gene, head_len=200, i=0, ...){
     else {
       y <- 0.5
     }
+    ## For pch with filled symbols (21-25), "col" refers to fill
+    ## whereas col becomes
     grob <- pointsGrob(x=mid, y=y, name=name,
                        pch=gene$pch, size=unit(gene$cex/2, "char"),
-                       gp=gpar(col=gene$col), default.units="native")
+                       gp=gpar(col=color, fill=fill),
+                       default.units="native")
   }
   # text
   else if (gene$gene_type == "text" || gene$gene_type == "side_text") {
@@ -104,13 +114,11 @@ gene_grob <- function(gene, head_len=200, i=0, ...){
       just <- c("centre", "centre")
     }
     grob <- textGrob(label=gene$name, x=mid, y=0.5, name=name,
-                     just=just, gp=gpar(col=gene$col, cex=gene$cex),
+                     just=just, gp=gpar(col=color, cex=gene$cex),
                      default.units="native")
   }
   else {
-    
     grob <- try(do.call(gene$gene_type, list(gene, ...)), silent=FALSE)
-    #browser()
     if (!(is.grob(grob) || all(sapply(grob, is.grob))))
       stop(paste(gene$gene_type, "is an invalid gene_type or",
                  "does not return a grob"))

@@ -1,6 +1,18 @@
 genoPlotR changes
 =================
 
+0.8.7 - 2017-11-06
+------------------
+Small bug fixes:
+- Changed CITATION to comply with as.person() requirements
+- Corrected a line too long in dna_segs.Rd
+- Corrected broken links in the vignette
+
+0.8.6 - 2017-05-15
+------------------
+Previous version created warnings with R 3.4.0. Removed the inst/doc
+folder on R-forge. Package back on CRAN.
+
 0.8.3 - 2015-07-02
 ------------------
 Adapting the package to new CRAN guidelines:
