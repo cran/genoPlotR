@@ -9,8 +9,8 @@ gene_grob <- function(gene, head_len=200, i=0, ...){
   name <- paste("seg.", i, ".", gene$name, sep="")
   color <- gene$col
   fill <- gene$fill
-  #browser()
   if (is.null(fill)) fill <- color
+  if (is.null(color)) color <- fill
   # arrows
   if (gene$gene_type == "arrows" || gene$gene_type == "headless_arrows"){
     if (gene$gene_type == "arrows"){

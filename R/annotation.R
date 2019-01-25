@@ -6,7 +6,7 @@
 annotation <- function(x1, x2=NA, text, rot=0, col="black"){
   if (missing(x1) | missing(text)) stop("Args x1 and text must be provided")
   if (!is.numeric(x1)) stop("x1 must be numeric")
-  if (!is.na(x2) && !is.numeric(x2)) stop("x2 must be numeric")
+  if (!(all(is.na(x2)) | is.numeric(x2))) stop("x2 must be numeric or NA")
   if (!is.character(text)) stop("text must be character")
   as.annotation(data.frame(x1=x1, x2=x2, text=text, stringsAsFactors=FALSE),
                 rot=rot, col=col)

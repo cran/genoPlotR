@@ -12,7 +12,7 @@
 }
 \usage{
 dna_seg(x, ...)
-as.dna_seg(df, col = "blue", fill = "transparent", lty = 1, lwd = 1,
+as.dna_seg(df, col = "blue", fill = "blue", lty = 1, lwd = 1,
            pch = 8, cex = 1, gene_type = "arrows")
 is.dna_seg(dna_seg)
 }
@@ -35,9 +35,7 @@ is.dna_seg(dna_seg)
   \item{fill}{
     Either a fill vector of the same length as \code{df} or of length
     one, to be applied to the whole object. Will be passed to
-    corresponding \code{grob} object. Default to \code{NULL}. If
-    \code{NULL}, then \code{col} is used to set the \code{fill}
-    parameter.
+    corresponding \code{grob} object. Default to \code{blue}.
   }
   \item{lty}{
     A vector of the same length as \code{df} or of length one, giving

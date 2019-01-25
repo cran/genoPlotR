@@ -12,7 +12,7 @@ dna_seg <- function(x, ...){
   }
 }
 # convert to dna_seg format. 
-as.dna_seg <- function(df, col="blue", fill="transparent", lty=1, lwd=1, pch=8,
+as.dna_seg <- function(df, col="blue", fill="blue", lty=1, lwd=1, pch=8,
                        cex=1, gene_type="arrows"){
   # check for class dna_seg, list, df
   if (is.dna_seg(dna_seg)) return(df)

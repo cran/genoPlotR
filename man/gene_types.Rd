@@ -53,7 +53,7 @@ plot_gene_map(list(dna_seg))
 
 ## Change gene_types and plot again
 dna_seg$gene_type <- gene_types(auto=FALSE)
-dna_seg$col <- rainbow(n)
+dna_seg$fill <- rainbow(n)
 dna_seg_r <- dna_seg
 dna_seg_r$strand <- -dna_seg$strand
 
@@ -76,7 +76,7 @@ triangleGrob <- function(gene, ...) {
   x <- c(gene$start, (gene$start+gene$end)/2, gene$end)
   y1 <- 0.5 + 0.4*gene$strand
   y <- c(y1, 0.5, y1)
-  polygonGrob(x, y, gp=gpar(fill=gene$col, col=gene$col, lty=gene$lty,
+  polygonGrob(x, y, gp=gpar(fill=gene$fill, col=gene$col, lty=gene$lty,
                       lwd=gene$lwd), default.units="native")
 }
 

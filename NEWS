@@ -1,6 +1,17 @@
 genoPlotR changes
 =================
 
+0.8.9 - 2019-01-16
+------------------
+Fixing colors in the examples: col is now mapping to "col" and not to "fill",
+and affects the example data (which has "col").
+
+0.8.8 - 2018-02-21
+------------------
+Small fix:
+- pkg/man/genoPlotR-package.Rd had to be modified not to be unsynched with
+  DESCRIPTION
+
 0.8.7 - 2017-11-06
 ------------------
 Small bug fixes:

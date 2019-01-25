@@ -3,24 +3,14 @@
 \alias{genoPlotR}
 \docType{package}
 \title{
-  genoPlotR - a R framework to produce publication-grade maps of genes
-  and genomes.
+\packageTitle{genoPlotR}
 }
 \description{
-  A R framework to plot comparison of gene stretches or genomes, a la
-  ACT (Artemis Comparison Tool), but with production-grade graphics, and
-  a static interface. Reads directly from tabular files or from wide-spread
-  biological formats such as BLAST and PTT (NCBI).
+\packageDescription{genoPlotR}
 }
 \details{
-  \tabular{ll}{
-    Package: \tab genoPlotR\cr
-    Type: \tab Package\cr
-    Version: \tab 0.1\cr
-    Date: \tab 2009-12-08\cr
-    License: \tab GPL (>=2)\cr
-    LazyLoad: \tab yes\cr
-  }
+\packageDESCRIPTION{genoPlotR}
+\packageIndices{genoPlotR}
   The only plotting function is \code{\link{plot_gene_map}}, which
   produces \code{link[grid]{grid}} graphics. Data is composed mainly of
   DNA segments (\code{\link{dna_seg}}) objects, which represent
@@ -32,9 +22,13 @@
   \code{\link{comparison}} conversion functions. 
 }
 \author{
-  Lionel Guy
-  
-  Maintainer: Lionel Guy \email{lionel.guy@ebc.uu.se}
+\packageAuthor{genoPlotR}
+
+Maintainer: \packageMaintainer{genoPlotR}
+}
+\references{
+Guy, L., Roat Kultima, J, and Andersson, S.G.E. (2010). genoPlotR:
+comparative gene and genome visualization in R. Bioinformatics 26(18):2334-2335.
 }
 \keyword{ aplot }
 \seealso{
