@@ -380,12 +380,7 @@ plot_gene_map(chrY_subseg$dna_segs, chrY_subseg$comparison,
 ###################################################
 ### code chunk number 38: ex6_startdevice
 ###################################################
-sysname <- Sys.info()["sysname"]
-if (sysname == "Windows"){
   pdf(file="ex6.pdf", width=6, height=8, onefile=TRUE)
-} else {
-  cairo_pdf(file="ex6.pdf", width=6, height=8, onefile=TRUE)
-}
 
 
 ###################################################
@@ -454,7 +449,7 @@ upViewport(0)
 
 
 ###################################################
-### code chunk number 44: genoPlotR.Rnw:734-735
+### code chunk number 44: genoPlotR.Rnw:730-731
 ###################################################
 dev.off()
 
@@ -501,7 +496,7 @@ plot_gene_map(barto$dna_segs, barto$comparisons, tree = tree_barto,
 
 
 ###################################################
-### code chunk number 47: genoPlotR.Rnw:793-794
+### code chunk number 47: genoPlotR.Rnw:789-790
 ###################################################
 barto$dna_segs[[2]]$gene_type <- "starGrob"
 barto$dna_segs[[4]]$gene_type <- "starGrob"
@@ -539,7 +534,7 @@ plot_gene_map(barto$dna_segs, barto$comparisons, tree = tree_barto,
 
 
 ###################################################
-### code chunk number 50: genoPlotR.Rnw:833-834
+### code chunk number 50: genoPlotR.Rnw:829-830
 ###################################################
 plot_gene_map(barto$dna_segs, barto$comparisons, tree = tree_barto,
               annotations = annots,

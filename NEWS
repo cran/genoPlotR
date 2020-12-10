@@ -1,6 +1,11 @@
 genoPlotR changes
 =================
 
+0.8.10 - 2020-12-10
+-------------------
+Small fix:
+- Removed calls to cairo_pdf(), replaced with standard pdf()
+
 0.8.9 - 2019-01-16
 ------------------
 Fixing colors in the examples: col is now mapping to "col" and not to "fill",

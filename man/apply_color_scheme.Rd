@@ -57,7 +57,7 @@ decreasing = FALSE, rng = NULL, transparency = 0.5)
   A character vector of same length as \code{x}, representing colors.
 }
 \references{
-  Artemis Comparison Tool, \url{http://www.sanger.ac.uk/Software/ACT/}
+  Artemis Comparison Tool, \url{https://www.sanger.ac.uk/tool/artemis-comparison-tool-act/}
 }
 \author{
   Lionel Guy

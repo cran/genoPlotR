@@ -648,13 +648,9 @@ First, a \code{viewport} that will contain all plots is pushed in a new page.
 The plot is divided in three rows, of relative heights 1, 1.3 and 0.8.
 
 <<ex6_startdevice, echo=FALSE, results=hide>>=
-sysname <- Sys.info()["sysname"]
-if (sysname == "Windows"){
   pdf(file="ex6.pdf", width=6, height=8, onefile=TRUE)
-} else {
-  cairo_pdf(file="ex6.pdf", width=6, height=8, onefile=TRUE)
-}
 @ 
+
 <<ex6_vpext, results=hide>>=
 pushViewport(viewport(layout=grid.layout(3,1,
                         heights=unit(c(1,1.3,0.8), rep("null", 3))),

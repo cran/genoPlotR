@@ -487,7 +487,7 @@ c1 <- as.comparison(data.frame(start1=start1, end1=end1,
                                col=grey(c(0.6, 0.8, 0.5))))
 ## Generate genoPlotR logo
 \dontrun{
-cairo_pdf("logo.pdf", h=0.7, w=3)
+pdf("logo.pdf", h=0.7, w=3)
 }
 par(fin=c(0.7, 3))
 plot_gene_map(dna_segs=list(c(ds1, ds_genoR), c(ds2, ds_Plot)),
