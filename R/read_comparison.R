@@ -21,7 +21,7 @@ read_comparison_from_blast <- function(file, sort_by="per_id",
     decr <-
       if (sort_by %in% c("per_id", "aln_len", "bit_score")) FALSE else TRUE
     # reorder from weakest to strongest
-    table <- table[order(table[[sort_by]], decreasing=decr),]
+    table <- table[do.call(order, list(table[[sort_by]], decreasing=decr)),]
   }
   # filter evalue
   if (!is.null(filt_high_evalue)){

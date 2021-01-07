@@ -1,6 +1,12 @@
 genoPlotR changes
 =================
 
+0.8.11 - 2021-01-05
+-------------------
+Small fix:
+- Replaced calls to order() on data.frames by do.call(order, list=...) to comply
+  with the latest R developments.
+
 0.8.10 - 2020-12-10
 -------------------
 Small fix:

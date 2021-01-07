@@ -16,7 +16,7 @@ read_mauve_backbone <- function(file, ref=1, gene_type="side_blocks",
   }
   if (any(blocks[,ref*2] < 0))
       stop("Not all rows in ref columns are positive. Contact author.")
-  blocks <- blocks[order(blocks[,ref*2]),]
+  blocks <- blocks[do.call(order, list(blocks[,ref*2])),]
   # filter, if needed
   sizes <- matrix(NA, nrow=n_blocks, ncol=n_orgs)
   for (i in 1:n_orgs){

@@ -167,7 +167,7 @@ plot_gene_map <- function(dna_segs,
       # check the strand
       xlim$strand <- ifelse(xlim$x0 < xlim$x1, 1, -1)
       # sort x0 x1
-      for (j in 1:nrow(xlim)) xlim[j,1:2] <- sort(xlim[j,1:2])
+      for (j in 1:nrow(xlim)) xlim[j,1:2] <- sort(as.numeric(xlim[j,1:2]))
       xlims[[i]] <- xlim
     }
   } else {
